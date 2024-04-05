@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS Expenses (
   paid_by_member_id INTEGER,
   amount DECIMAL,
   description TEXT,
-  date DATE,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
   FOREIGN KEY (group_id) REFERENCES Groups(group_id),
   FOREIGN KEY (paid_by_member_id) REFERENCES GroupMembers(member_id)
 );
@@ -78,12 +79,37 @@ INSERT INTO
     paid_by_member_id,
     amount,
     description,
-    date
+    created_at,
+    updated_at
   )
 VALUES
-  (1, 1, 1, 6000, 'レンタカー', '2024-04-10'),
-  (2, 1, 2, 3000, 'ガソリン', '2024-04-10'),
-  (3, 1, 3, 1000, 'ランチ', '2024-04-10');
+  (
+    1,
+    1,
+    1,
+    6000,
+    'レンタカー',
+    '2024-04-10 12:00:00',
+    '2024-04-10 12:00:00'
+  ),
+  (
+    2,
+    1,
+    2,
+    3000,
+    'ガソリン',
+    '2024-04-10 12:00:00',
+    '2024-04-10 12:00:00'
+  ),
+  (
+    3,
+    1,
+    3,
+    1000,
+    'ランチ',
+    '2024-04-10 12:00:00',
+    '2024-04-10 12:00:00'
+  );
 
 -- 支出参加者の初期データ
 INSERT INTO
