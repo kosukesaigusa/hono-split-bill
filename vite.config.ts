@@ -11,4 +11,7 @@ export default defineConfig({
       entry: 'src/index.tsx',
     }),
   ],
+  test: {
+    globals: true,
+  },
 })

@@ -12,6 +12,10 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 app.use(prettyJSON())
 
+app.get('/', async (c) => {
+  return c.json({ message: 'Hello, World!' })
+})
+
 app.get('api/groups/:groupUuid', async (c) => {
   const groupUuid = c.req.param().groupUuid
   const group = await fetchGroup({ db: c.env.DB, groupUuid })
