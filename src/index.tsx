@@ -28,11 +28,15 @@ app.get('api/groups/:groupUuid/members', async (c) => {
 
 app.get('api/groups/:groupUuid/expenses', async (c) => {
   const groupUuid = c.req.param().groupUuid
+  const { page, perPage } = c.req.query()
+  const limit = parseQueryParameterToInt(perPage) ?? 10
+  const offset = (parseQueryParameterToInt(page) ?? 1 - 1) * limit
+
   const expenses = await fetchGroupExpenses({
     db: c.env.DB,
     groupUuid,
-    limit: 10,
-    offset: 0,
+    limit,
+    offset,
   })
   return c.json({
     totalCount: expenses.length,

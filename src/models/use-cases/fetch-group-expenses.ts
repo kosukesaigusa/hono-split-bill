@@ -4,18 +4,12 @@ import { RawExpense, queryGroupExpenses } from '../repositories/group-expenses'
 type Param = {
   db: D1Database
   groupUuid: string
-  limit?: number
-  offset?: number
+  limit: number
+  offset: number
 }
 
 export const fetchGroupExpenses = async (param: Param): Promise<Expense[]> => {
-  const rawExpenses = await queryGroupExpenses({
-    db: param.db,
-    groupUuid: param.groupUuid,
-    limit: 10,
-    offset: 0,
-  })
-
+  const rawExpenses = await queryGroupExpenses(param)
   return transformExpense(rawExpenses)
 }
 

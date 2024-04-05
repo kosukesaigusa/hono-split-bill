@@ -1,8 +1,8 @@
 type Param = {
   db: D1Database
   groupUuid: string
-  limit?: number
-  offset?: number
+  limit: number
+  offset: number
 }
 
 export type RawExpense = {
@@ -19,9 +19,7 @@ export type RawExpense = {
 export const queryGroupExpenses = async (
   param: Param
 ): Promise<RawExpense[]> => {
-  const groupUuid = param.groupUuid
-  const limit = param.limit ?? 10
-  const offset = param.offset ?? 0
+  const { groupUuid, limit, offset } = param
 
   const { results } = await param.db
     .prepare(
