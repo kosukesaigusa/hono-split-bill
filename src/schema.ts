@@ -1,20 +1,19 @@
-interface Group {
+export type Group = {
   group_id: number
-  name: string
-  members: Member[]
+  group_uuid: string
+  group_name: string
 }
 
-interface Expense {
+export type Expense = {
   expense_id: number
-  group_id: number
+  amount: number
   description: string
+  created_at: string
   paid_by_member: Member
   participant_members: Member[]
-  amount: number
-  date: string
 }
 
-interface Member {
+export type Member = {
   member_id: number
   member_name: string
 }

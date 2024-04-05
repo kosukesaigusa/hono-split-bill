@@ -1,5 +1,8 @@
 import { Hono } from 'hono'
 import { prettyJSON } from 'hono/pretty-json'
+import { fetchGroup } from './models/use-cases/fetch-group'
+import { fetchGroupExpenses } from './models/use-cases/fetch-group-expenses'
+import { fetchGroupMembers } from './models/use-cases/fetch-group-members'
 
 type Bindings = {
   DB: D1Database
@@ -11,11 +14,7 @@ app.use(prettyJSON())
 
 app.get('api/groups/:groupUuid', async (c) => {
   const groupUuid = c.req.param().groupUuid
-  const group = await c.env.DB.prepare(
-    'SELECT * FROM Groups WHERE group_uuid = ?'
-  )
-    .bind(groupUuid)
-    .first()
+  const group = await fetchGroup({ db: c.env.DB, groupUuid })
   if (!group) return c.notFound()
 
   return c.json(group)
@@ -23,28 +22,22 @@ app.get('api/groups/:groupUuid', async (c) => {
 
 app.get('api/groups/:groupUuid/members', async (c) => {
   const groupUuid = c.req.param().groupUuid
-  const { results } = await c.env.DB.prepare(
-    `SELECT * FROM GroupMembers AS gm
-JOIN Groups AS g ON gm.group_id = g.group_id
-WHERE g.group_uuid = ?
-`
-  )
-    .bind(groupUuid)
-    .all()
-  return c.json({ members: results })
+  const members = await fetchGroupMembers({ db: c.env.DB, groupUuid })
+  return c.json({ members: members })
 })
 
 app.get('api/groups/:groupUuid/expenses', async (c) => {
   const groupUuid = c.req.param().groupUuid
-  const { results } = await c.env.DB.prepare(
-    `SELECT * FROM Expenses AS e
-JOIN Groups AS g ON e.group_id = g.group_id
-WHERE g.group_uuid = ?
-`
-  )
-    .bind(groupUuid)
-    .all()
-  return c.json({ expenses: results })
+  const expenses = await fetchGroupExpenses({
+    db: c.env.DB,
+    groupUuid,
+    limit: 10,
+    offset: 0,
+  })
+  return c.json({
+    totalCount: expenses.length,
+    expenses: expenses,
+  })
 })
 
 export default app
