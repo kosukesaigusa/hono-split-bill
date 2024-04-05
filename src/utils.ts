@@ -1,4 +1,4 @@
-function parseQueryParameterToInt(param: string): number | undefined {
+export const parseQueryParameterToInt = (param: string): number | undefined => {
   if (param === undefined) {
     return undefined
   }
