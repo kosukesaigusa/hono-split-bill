@@ -7,6 +7,9 @@ import { IFetchGroupMembersUseCase } from '../models/use-cases/fetch-group-membe
 import { DIContainer } from './di-container'
 
 type DependencyTypes = {
+  // Database client
+  db: D1Database
+
   // Repositories
   GroupExpensesRepository: IGroupExpensesRepository
   GroupMembersRepository: IGroupMembersRepository
