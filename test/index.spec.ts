@@ -72,9 +72,11 @@ describe('GET /api/groups/:groupUuid', () => {
     )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
-      group_id: 1,
-      group_uuid: '123e4567-e89b-12d3-a456-426614174000',
-      group_name: 'Test Group',
+      group: {
+        group_id: 1,
+        group_uuid: '123e4567-e89b-12d3-a456-426614174000',
+        group_name: 'Test Group',
+      },
     })
   })
 })

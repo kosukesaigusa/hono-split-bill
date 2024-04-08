@@ -59,7 +59,7 @@ app.get('/api/groups/:groupUuid', async (c) => {
   const group = await fetchGroupUseCase.invoke(groupUuid)
   if (!group) return c.notFound()
 
-  return c.json(group)
+  return c.json({ group })
 })
 
 app.get(
@@ -84,7 +84,9 @@ app.get(
       offset,
     })
 
-    return c.json({ members: members })
+    return c.json({ members })
+  }
+)
   }
 )
 
