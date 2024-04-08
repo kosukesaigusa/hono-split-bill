@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS Groups;
 -- グループテーブルの作成
 CREATE TABLE IF NOT EXISTS Groups (
   group_id INTEGER PRIMARY KEY,
-  group_uuid TEXT,
+  group_uuid TEXT UNIQUE,
   group_name TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
