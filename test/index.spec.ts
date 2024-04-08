@@ -214,19 +214,6 @@ describe('POST /api/groups/:groupUuid/members', () => {
   })
 
   test('should return status 400 if name is not set', async () => {
-    class MockGroupMembersRepository implements IGroupMemberRepository {
-      async addGroupMember(): Promise<RawMember> {
-        return {
-          member_id: 1,
-          member_name: 'Test User',
-        }
-      }
-
-      async fetchGroupMembers(): Promise<RawMember[]> {
-        throw new Error('Method not implemented.')
-      }
-    }
-
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
       {
@@ -240,19 +227,6 @@ describe('POST /api/groups/:groupUuid/members', () => {
   })
 
   test('should return status 400 if name is empty', async () => {
-    class MockGroupMembersRepository implements IGroupMemberRepository {
-      async addGroupMember(): Promise<RawMember> {
-        return {
-          member_id: 1,
-          member_name: 'Test User',
-        }
-      }
-
-      async fetchGroupMembers(): Promise<RawMember[]> {
-        throw new Error('Method not implemented.')
-      }
-    }
-
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
       {
@@ -266,19 +240,6 @@ describe('POST /api/groups/:groupUuid/members', () => {
   })
 
   test('should return status 400 if name is too long', async () => {
-    class MockGroupMembersRepository implements IGroupMemberRepository {
-      async addGroupMember(): Promise<RawMember> {
-        return {
-          member_id: 1,
-          member_name: 'Test User',
-        }
-      }
-
-      async fetchGroupMembers(): Promise<RawMember[]> {
-        throw new Error('Method not implemented.')
-      }
-    }
-
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
       {
