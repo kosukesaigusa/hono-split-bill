@@ -208,6 +208,127 @@ describe('GET /api/groups/:groupUuid/members', () => {
   })
 })
 
+describe('POST /api/groups/:groupUuid/members', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
+  test('should return status 400 if name is not set', async () => {
+    class MockGroupMembersRepository implements IGroupMemberRepository {
+      async addGroupMember(): Promise<RawMember> {
+        return {
+          member_id: 1,
+          member_name: 'Test User',
+        }
+      }
+
+      async fetchGroupMembers(): Promise<RawMember[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    const res = await app.request(
+      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if name is empty', async () => {
+    class MockGroupMembersRepository implements IGroupMemberRepository {
+      async addGroupMember(): Promise<RawMember> {
+        return {
+          member_id: 1,
+          member_name: 'Test User',
+        }
+      }
+
+      async fetchGroupMembers(): Promise<RawMember[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    const res = await app.request(
+      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: '' }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if name is too long', async () => {
+    class MockGroupMembersRepository implements IGroupMemberRepository {
+      async addGroupMember(): Promise<RawMember> {
+        return {
+          member_id: 1,
+          member_name: 'Test User',
+        }
+      }
+
+      async fetchGroupMembers(): Promise<RawMember[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    const res = await app.request(
+      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'a'.repeat(256) }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 200', async () => {
+    class MockGroupMembersRepository implements IGroupMemberRepository {
+      async addGroupMember() {
+        return {
+          member_id: 1,
+          member_name: 'Test User',
+        }
+      }
+
+      async fetchGroupMembers(): Promise<RawMember[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    diContainer.override(
+      'GroupMemberRepository',
+      new MockGroupMembersRepository()
+    )
+
+    const res = await app.request(
+      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Test User' }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      member: {
+        member_id: 1,
+        member_name: 'Test User',
+      },
+    })
+  })
+})
+
 describe('GET /api/groups/:groupUuid/expenses', () => {
   afterEach(() => {
     diContainer.clearOverrides()
