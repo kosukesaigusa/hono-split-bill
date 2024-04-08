@@ -7,13 +7,17 @@ DROP TABLE IF EXISTS GroupMembers;
 
 DROP TABLE IF EXISTS Groups;
 
+-- ALTER TABLE
+--   "users"
+-- ADD
+--   COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
 -- グループテーブルの作成
 CREATE TABLE IF NOT EXISTS Groups (
   group_id INTEGER PRIMARY KEY,
   group_uuid TEXT,
   group_name TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- グループメンバーテーブルの作成
@@ -31,8 +35,8 @@ CREATE TABLE IF NOT EXISTS Expenses (
   paid_by_member_id INTEGER,
   amount DECIMAL,
   description TEXT,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (group_id) REFERENCES Groups(group_id),
   FOREIGN KEY (paid_by_member_id) REFERENCES GroupMembers(member_id)
 );
@@ -47,20 +51,12 @@ CREATE TABLE IF NOT EXISTS ExpenseParticipants (
 
 -- グループの初期データ
 INSERT INTO
-  Groups (
-    group_id,
-    group_uuid,
-    group_name,
-    created_at,
-    updated_at
-  )
+  Groups (group_id, group_uuid, group_name)
 VALUES
   (
     1,
     '123e4567-e89b-12d3-a456-426614174000',
-    '旅行',
-    '2024-04-10 12:00:00',
-    '2024-04-10 12:00:00'
+    '旅行'
   );
 
 -- グループメンバーの初期データ
@@ -78,38 +74,12 @@ INSERT INTO
     group_id,
     paid_by_member_id,
     amount,
-    description,
-    created_at,
-    updated_at
+    description
   )
 VALUES
-  (
-    1,
-    1,
-    1,
-    6000,
-    'レンタカー',
-    '2024-04-10 12:00:00',
-    '2024-04-10 12:00:00'
-  ),
-  (
-    2,
-    1,
-    2,
-    3000,
-    'ガソリン',
-    '2024-04-10 12:00:00',
-    '2024-04-10 12:00:00'
-  ),
-  (
-    3,
-    1,
-    3,
-    1000,
-    'ランチ',
-    '2024-04-10 12:00:00',
-    '2024-04-10 12:00:00'
-  );
+  (1, 1, 1, 6000, 'レンタカー'),
+  (2, 1, 2, 3000, 'ガソリン'),
+  (3, 1, 3, 1000, 'ランチ');
 
 -- 支出参加者の初期データ
 INSERT INTO
