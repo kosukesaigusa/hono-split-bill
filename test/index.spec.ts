@@ -27,6 +27,9 @@ describe('GET /api/groups/:groupUuid', () => {
 
   test('should return status 404 if group query result is undefined', async () => {
     class MockUndefinedGroupRepository implements IGroupRepository {
+      createGroup(param: { name: string; uuid: string }): Promise<RawGroup> {
+        throw new Error('Method not implemented.')
+      }
       async fetchGroup() {
         return undefined
       }
@@ -44,6 +47,9 @@ describe('GET /api/groups/:groupUuid', () => {
 
   test('should return status 200', async () => {
     class MockGroupRepository implements IGroupRepository {
+      createGroup(param: { name: string; uuid: string }): Promise<RawGroup> {
+        throw new Error('Method not implemented.')
+      }
       async fetchGroup() {
         return {
           group_id: 1,
