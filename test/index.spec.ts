@@ -39,7 +39,9 @@ describe('GET /api/groups/:groupUuid', () => {
 
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000',
-      {},
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
       MOCK_ENV
     )
     expect(res.status).toBe(404)
@@ -63,7 +65,9 @@ describe('GET /api/groups/:groupUuid', () => {
 
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000',
-      {},
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
       MOCK_ENV
     )
     expect(res.status).toBe(200)
@@ -179,7 +183,9 @@ describe('GET /api/groups/:groupUuid/members', () => {
 
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
-      {},
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
       MOCK_ENV
     )
     expect(res.status).toBe(200)
@@ -234,7 +240,9 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
 
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000/expenses',
-      {},
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
       MOCK_ENV
     )
     expect(res.status).toBe(200)
