@@ -95,4 +95,34 @@ WHERE g.group_uuid = ?
       member_name: createdMember.member_name as string,
     }
   }
+
+  async deleteGroupMember(param: {
+    groupUuid: string
+    memberId: number
+  }): Promise<void> {
+    const groupUuid = param.groupUuid
+    const memberId = param.memberId
+
+    const result = await this.db
+      .prepare(
+        `
+DELETE FROM GroupMembers
+WHERE member_id = ?
+AND group_id = (
+  SELECT g.group_id FROM Groups AS g
+  WHERE g.group_uuid = ?
+);
+`
+      )
+      .bind(memberId, groupUuid)
+      .run()
+
+    if (!result.success) {
+      throw new Error('Failed to delete member')
+    }
+
+    if (!result.meta.changed_db) {
+      throw new Error('Failed to delete member')
+    }
+  }
 }

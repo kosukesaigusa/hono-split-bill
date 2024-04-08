@@ -171,6 +171,9 @@ describe('GET /api/groups/:groupUuid/members', () => {
 
   test('should return status 200', async () => {
     class MockGroupMembersRepository implements IGroupMemberRepository {
+      deleteGroupMember(): Promise<void> {
+        throw new Error('Method not implemented.')
+      }
       addGroupMember(): Promise<RawMember> {
         throw new Error('Method not implemented.')
       }
@@ -254,6 +257,9 @@ describe('POST /api/groups/:groupUuid/members', () => {
 
   test('should return status 200', async () => {
     class MockGroupMembersRepository implements IGroupMemberRepository {
+      deleteGroupMember(): Promise<void> {
+        throw new Error('Method not implemented.')
+      }
       async addGroupMember() {
         return {
           member_id: 1,
