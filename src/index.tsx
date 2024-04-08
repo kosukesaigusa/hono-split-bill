@@ -88,6 +88,22 @@ app.get(
   }
 )
 
+app.post(
+  '/api/groups',
+  zValidator(
+    'json',
+    z.object({
+      name: z.string().min(1).max(255),
+    })
+  ),
+  async (c) => {
+    const { name } = c.req.valid('json')
+    const createGroupUseCase = diContainer.get('CreateGroupUseCase')
+    const group = await createGroupUseCase.invoke(name)
+    return c.json({ group })
+  }
+)
+
 app.get(
   '/api/groups/:groupUuid/expenses',
   zValidator(
