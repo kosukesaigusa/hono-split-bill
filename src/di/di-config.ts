@@ -1,6 +1,6 @@
 import { IGroupRepository } from '../models/repositories/group'
-import { IGroupExpensesRepository } from '../models/repositories/group-expenses'
-import { IGroupMembersRepository } from '../models/repositories/group-members'
+import { IGroupExpenseRepository } from '../models/repositories/group-expense'
+import { IGroupMemberRepository } from '../models/repositories/group-member'
 import { ICreateGroupUseCase } from '../models/use-cases/create-group'
 import { IFetchGroupUseCase } from '../models/use-cases/fetch-group'
 import { IFetchGroupExpensesUseCase } from '../models/use-cases/fetch-group-expenses'
@@ -12,8 +12,8 @@ type DependencyTypes = {
   db: D1Database
 
   // Repositories
-  GroupExpensesRepository: IGroupExpensesRepository
-  GroupMembersRepository: IGroupMembersRepository
+  GroupExpenseRepository: IGroupExpenseRepository
+  GroupMemberRepository: IGroupMemberRepository
   GroupRepository: IGroupRepository
 
   // Use cases

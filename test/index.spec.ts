@@ -1,8 +1,8 @@
 import app from '../src'
 import { diContainer } from '../src/di/di-config'
 import { IGroupRepository, RawGroup } from '../src/models/repositories/group'
-import { IGroupExpensesRepository } from '../src/models/repositories/group-expenses'
-import { IGroupMembersRepository } from '../src/models/repositories/group-members'
+import { IGroupExpenseRepository } from '../src/models/repositories/group-expense'
+import { IGroupMemberRepository } from '../src/models/repositories/group-member'
 
 const MOCK_ENV = {
   DB: {
@@ -165,7 +165,7 @@ describe('GET /api/groups/:groupUuid/members', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupMembersRepository implements IGroupMembersRepository {
+    class MockGroupMembersRepository implements IGroupMemberRepository {
       async fetchGroupMembers() {
         return [
           {
@@ -177,7 +177,7 @@ describe('GET /api/groups/:groupUuid/members', () => {
     }
 
     diContainer.override(
-      'GroupMembersRepository',
+      'GroupMemberRepository',
       new MockGroupMembersRepository()
     )
 
@@ -206,7 +206,7 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupExpensesRepository implements IGroupExpensesRepository {
+    class MockGroupExpensesRepository implements IGroupExpenseRepository {
       async fetchGroupExpenses() {
         return [
           {
@@ -234,7 +234,7 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
     }
 
     diContainer.override(
-      'GroupExpensesRepository',
+      'GroupExpenseRepository',
       new MockGroupExpensesRepository()
     )
 

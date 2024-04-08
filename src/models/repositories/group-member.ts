@@ -9,11 +9,11 @@ export type RawMember = {
   member_name: string
 }
 
-export interface IGroupMembersRepository {
+export interface IGroupMemberRepository {
   fetchGroupMembers(param: Param): Promise<RawMember[]>
 }
 
-export class GroupMembersRepository implements IGroupMembersRepository {
+export class GroupMemberRepository implements IGroupMemberRepository {
   constructor(private readonly db: D1Database) {}
 
   async fetchGroupMembers(param: Param): Promise<RawMember[]> {

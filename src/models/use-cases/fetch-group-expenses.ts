@@ -1,8 +1,8 @@
 import { Expense } from '../../schema'
 import {
-  IGroupExpensesRepository,
+  IGroupExpenseRepository,
   RawExpense,
-} from '../repositories/group-expenses'
+} from '../repositories/group-expense'
 
 type Param = {
   groupUuid: string
@@ -16,7 +16,7 @@ export interface IFetchGroupExpensesUseCase {
 
 export class FetchGroupExpensesUseCase implements IFetchGroupExpensesUseCase {
   constructor(
-    private readonly groupExpensesRepository: IGroupExpensesRepository
+    private readonly groupExpensesRepository: IGroupExpenseRepository
   ) {}
 
   async invoke(param: Param): Promise<Expense[]> {

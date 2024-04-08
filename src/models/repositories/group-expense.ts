@@ -15,11 +15,11 @@ export type RawExpense = {
   participant_member_name: string
 }
 
-export interface IGroupExpensesRepository {
+export interface IGroupExpenseRepository {
   fetchGroupExpenses(param: Param): Promise<RawExpense[]>
 }
 
-export class GroupExpensesRepository implements IGroupExpensesRepository {
+export class GroupExpenseRepository implements IGroupExpenseRepository {
   constructor(private readonly db: D1Database) {}
 
   async fetchGroupExpenses(param: Param): Promise<RawExpense[]> {

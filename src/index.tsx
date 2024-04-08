@@ -5,8 +5,8 @@ import { z } from 'zod'
 
 import { diContainer } from './di/di-config'
 import { GroupRepository } from './models/repositories/group'
-import { GroupExpensesRepository } from './models/repositories/group-expenses'
-import { GroupMembersRepository } from './models/repositories/group-members'
+import { GroupExpenseRepository } from './models/repositories/group-expense'
+import { GroupMemberRepository } from './models/repositories/group-member'
 import { CreateGroupUseCase } from './models/use-cases/create-group'
 import { FetchGroupUseCase } from './models/use-cases/fetch-group'
 import { FetchGroupExpensesUseCase } from './models/use-cases/fetch-group-expenses'
@@ -20,8 +20,8 @@ app.use('*', (c, next) => {
   const db = c.env.DB
   diContainer.registerInstance('db', db)
 
-  diContainer.register('GroupExpensesRepository', GroupExpensesRepository, db)
-  diContainer.register('GroupMembersRepository', GroupMembersRepository, db)
+  diContainer.register('GroupExpenseRepository', GroupExpenseRepository, db)
+  diContainer.register('GroupMemberRepository', GroupMemberRepository, db)
   diContainer.register('GroupRepository', GroupRepository, db)
 
   diContainer.register(
@@ -32,12 +32,12 @@ app.use('*', (c, next) => {
   diContainer.register(
     'FetchGroupExpensesUseCase',
     FetchGroupExpensesUseCase,
-    diContainer.get('GroupExpensesRepository')
+    diContainer.get('GroupExpenseRepository')
   )
   diContainer.register(
     'FetchGroupMembersUseCase',
     FetchGroupMembersUseCase,
-    diContainer.get('GroupMembersRepository')
+    diContainer.get('GroupMemberRepository')
   )
   diContainer.register(
     'FetchGroupUseCase',
