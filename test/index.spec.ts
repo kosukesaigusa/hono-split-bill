@@ -1,6 +1,6 @@
 import app from '../src'
 import { diContainer } from '../src/di/di-config'
-import { IGroupRepository } from '../src/models/repositories/group'
+import { IGroupRepository, RawGroup } from '../src/models/repositories/group'
 import { IGroupExpensesRepository } from '../src/models/repositories/group-expenses'
 import { IGroupMembersRepository } from '../src/models/repositories/group-members'
 
@@ -71,6 +71,86 @@ describe('GET /api/groups/:groupUuid', () => {
       group_id: 1,
       group_uuid: '123e4567-e89b-12d3-a456-426614174000',
       group_name: 'Test Group',
+    })
+  })
+})
+
+describe('POST /api/groups', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
+  test('should return status 400 if name is not set', async () => {
+    const res = await app.request(
+      '/api/groups',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if name is empty', async () => {
+    const res = await app.request(
+      '/api/groups',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: '' }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if name is too long', async () => {
+    const res = await app.request(
+      '/api/groups',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'a'.repeat(256) }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 200', async () => {
+    class MockGroupRepository implements IGroupRepository {
+      async createGroup() {
+        return {
+          group_id: 2,
+          group_uuid: '123e4567-e89b-12d3-a456-426614174000',
+          group_name: 'Test Group 2',
+        }
+      }
+      async fetchGroup(): Promise<RawGroup> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    diContainer.override('GroupRepository', new MockGroupRepository())
+
+    const res = await app.request(
+      '/api/groups',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Test Group 2' }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      group: {
+        group_id: 2,
+        group_uuid: '123e4567-e89b-12d3-a456-426614174000',
+        group_name: 'Test Group 2',
+      },
     })
   })
 })
