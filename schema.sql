@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS GroupMembers (
   member_id INTEGER PRIMARY KEY,
   group_id INTEGER,
   member_name TEXT,
-  FOREIGN KEY (group_id) REFERENCES Groups(group_id)
+  FOREIGN KEY (group_id) REFERENCES Groups(group_id),
+  UNIQUE (group_id, member_name)
 );
 
 -- 支出テーブルの作成
