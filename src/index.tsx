@@ -7,6 +7,7 @@ import { diContainer } from './di/di-config'
 import { GroupRepository } from './models/repositories/group'
 import { GroupExpensesRepository } from './models/repositories/group-expenses'
 import { GroupMembersRepository } from './models/repositories/group-members'
+import { CreateGroupUseCase } from './models/use-cases/create-group'
 import { FetchGroupUseCase } from './models/use-cases/fetch-group'
 import { FetchGroupExpensesUseCase } from './models/use-cases/fetch-group-expenses'
 import { FetchGroupMembersUseCase } from './models/use-cases/fetch-group-members'
@@ -23,6 +24,11 @@ app.use('*', (c, next) => {
   diContainer.register('GroupMembersRepository', GroupMembersRepository, db)
   diContainer.register('GroupRepository', GroupRepository, db)
 
+  diContainer.register(
+    'CreateGroupUseCase',
+    CreateGroupUseCase,
+    diContainer.get('GroupRepository')
+  )
   diContainer.register(
     'FetchGroupExpensesUseCase',
     FetchGroupExpensesUseCase,
