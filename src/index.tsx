@@ -119,6 +119,26 @@ app.post(
   }
 )
 
+app.delete(
+  '/api/groups/:groupUuid/members/:memberId',
+  zValidator(
+    'param',
+    z.object({
+      groupUuid: z.string(),
+      memberId: z.string().pipe(z.coerce.number()),
+    })
+  ),
+  async (c) => {
+    const { groupUuid, memberId } = c.req.valid('param')
+    const removeMemberFromGroupUseCase = diContainer.get(
+      'RemoveMemberFromGroupUseCase'
+    )
+    await removeMemberFromGroupUseCase.invoke({ groupUuid, memberId })
+
+    return c.json({})
+  }
+)
+
 app.post(
   '/api/groups',
   zValidator(
