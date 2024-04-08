@@ -1,29 +1,31 @@
-type Param = {
-  groupUuid: string
-  limit?: number
-  offset?: number
-}
-
 export type RawMember = {
   member_id: number
   member_name: string
 }
 
-type AddGroupMemberParam = {
-  groupUuid: string
-  name: string
-}
-
 export interface IGroupMemberRepository {
-  fetchGroupMembers(param: Param): Promise<RawMember[]>
+  fetchGroupMembers(param: {
+    groupUuid: string
+    limit?: number
+    offset?: number
+  }): Promise<RawMember[]>
 
-  addGroupMember(param: AddGroupMemberParam): Promise<RawMember>
+  addGroupMember(param: { groupUuid: string; name: string }): Promise<RawMember>
+
+  deleteGroupMember(param: {
+    groupUuid: string
+    memberId: number
+  }): Promise<void>
 }
 
 export class GroupMemberRepository implements IGroupMemberRepository {
   constructor(private readonly db: D1Database) {}
 
-  async fetchGroupMembers(param: Param): Promise<RawMember[]> {
+  async fetchGroupMembers(param: {
+    groupUuid: string
+    limit?: number
+    offset?: number
+  }): Promise<RawMember[]> {
     const groupUuid = param.groupUuid
     const limit = param.limit ?? 10
     const offset = param.offset ?? 0
@@ -47,7 +49,10 @@ LIMIT ? OFFSET ?;
     })
   }
 
-  async addGroupMember(param: AddGroupMemberParam): Promise<RawMember> {
+  async addGroupMember(param: {
+    groupUuid: string
+    name: string
+  }): Promise<RawMember> {
     const groupUuid = param.groupUuid
     const name = param.name
 

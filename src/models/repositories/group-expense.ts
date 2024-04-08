@@ -1,9 +1,3 @@
-type Param = {
-  groupUuid: string
-  limit: number
-  offset: number
-}
-
 export type RawExpense = {
   expense_id: number
   amount: number
@@ -16,13 +10,21 @@ export type RawExpense = {
 }
 
 export interface IGroupExpenseRepository {
-  fetchGroupExpenses(param: Param): Promise<RawExpense[]>
+  fetchGroupExpenses(param: {
+    groupUuid: string
+    limit: number
+    offset: number
+  }): Promise<RawExpense[]>
 }
 
 export class GroupExpenseRepository implements IGroupExpenseRepository {
   constructor(private readonly db: D1Database) {}
 
-  async fetchGroupExpenses(param: Param): Promise<RawExpense[]> {
+  async fetchGroupExpenses(param: {
+    groupUuid: string
+    limit: number
+    offset: number
+  }): Promise<RawExpense[]> {
     const { groupUuid, limit, offset } = param
 
     const { results } = await this.db

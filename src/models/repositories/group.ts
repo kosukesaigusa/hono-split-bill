@@ -4,15 +4,10 @@ export type RawGroup = {
   group_name: string
 }
 
-type CreateGroupParam = {
-  name: string
-  uuid: string
-}
-
 export interface IGroupRepository {
   fetchGroup(groupUuid: string): Promise<RawGroup | undefined>
 
-  createGroup(param: CreateGroupParam): Promise<RawGroup>
+  createGroup(param: { name: string; uuid: string }): Promise<RawGroup>
 }
 
 export class GroupRepository implements IGroupRepository {
@@ -33,7 +28,7 @@ export class GroupRepository implements IGroupRepository {
     }
   }
 
-  async createGroup(param: CreateGroupParam): Promise<RawGroup> {
+  async createGroup(param: { name: string; uuid: string }): Promise<RawGroup> {
     const result = await this.db
       .prepare('INSERT INTO Groups (group_uuid, group_name) VALUES (?, ?)')
       .bind(param.uuid, param.name)

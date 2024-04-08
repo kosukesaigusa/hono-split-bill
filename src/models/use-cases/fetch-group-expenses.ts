@@ -4,14 +4,12 @@ import {
   RawExpense,
 } from '../repositories/group-expense'
 
-type Param = {
-  groupUuid: string
-  limit: number
-  offset: number
-}
-
 export interface IFetchGroupExpensesUseCase {
-  invoke(param: Param): Promise<Expense[]>
+  invoke(param: {
+    groupUuid: string
+    limit: number
+    offset: number
+  }): Promise<Expense[]>
 }
 
 export class FetchGroupExpensesUseCase implements IFetchGroupExpensesUseCase {
@@ -19,7 +17,11 @@ export class FetchGroupExpensesUseCase implements IFetchGroupExpensesUseCase {
     private readonly groupExpensesRepository: IGroupExpenseRepository
   ) {}
 
-  async invoke(param: Param): Promise<Expense[]> {
+  async invoke(param: {
+    groupUuid: string
+    limit: number
+    offset: number
+  }): Promise<Expense[]> {
     const rawExpenses = await this.groupExpensesRepository.fetchGroupExpenses(
       param
     )
