@@ -9,8 +9,15 @@ export type RawMember = {
   member_name: string
 }
 
+type AddGroupMemberParam = {
+  groupUuid: string
+  name: string
+}
+
 export interface IGroupMemberRepository {
   fetchGroupMembers(param: Param): Promise<RawMember[]>
+
+  addGroupMember(param: AddGroupMemberParam): Promise<RawMember>
 }
 
 export class GroupMemberRepository implements IGroupMemberRepository {
@@ -38,5 +45,49 @@ LIMIT ? OFFSET ?;
         member_name: r.member_name as string,
       }
     })
+  }
+
+  async addGroupMember(param: AddGroupMemberParam): Promise<RawMember> {
+    const groupUuid = param.groupUuid
+    const name = param.name
+
+    const result = await this.db
+      .prepare(
+        `
+INSERT INTO GroupMembers (group_id, member_name)
+SELECT g.group_id, ? FROM Groups AS g
+WHERE g.group_uuid = ?
+  AND NOT EXISTS (
+    SELECT 1
+    FROM GroupMembers AS gm
+    WHERE gm.group_id = g.group_id
+    AND gm.member_name = ?
+  );
+`
+      )
+      .bind(name, groupUuid, name)
+      .run()
+
+    if (!result.success) {
+      throw new Error('Failed to add member')
+    }
+
+    if (!result.meta.changed_db) {
+      throw new Error('Failed to add member')
+    }
+
+    const createdMember = await this.db
+      .prepare(`SELECT * FROM GroupMembers WHERE member_id = ?;`)
+      .bind(result.meta.last_row_id)
+      .first()
+
+    if (!createdMember) {
+      throw new Error('Failed to fetch created member')
+    }
+
+    return {
+      member_id: createdMember.member_id as number,
+      member_name: createdMember.member_name as string,
+    }
   }
 }

@@ -2,7 +2,10 @@ import app from '../src'
 import { diContainer } from '../src/di/di-config'
 import { IGroupRepository, RawGroup } from '../src/models/repositories/group'
 import { IGroupExpenseRepository } from '../src/models/repositories/group-expense'
-import { IGroupMemberRepository } from '../src/models/repositories/group-member'
+import {
+  IGroupMemberRepository,
+  RawMember,
+} from '../src/models/repositories/group-member'
 
 const MOCK_ENV = {
   DB: {
@@ -168,6 +171,9 @@ describe('GET /api/groups/:groupUuid/members', () => {
 
   test('should return status 200', async () => {
     class MockGroupMembersRepository implements IGroupMemberRepository {
+      addGroupMember(): Promise<RawMember> {
+        throw new Error('Method not implemented.')
+      }
       async fetchGroupMembers() {
         return [
           {
