@@ -25,6 +25,11 @@ app.use('*', (c, next) => {
   diContainer.register('GroupRepository', GroupRepository, db)
 
   diContainer.register(
+    'AddMemberToGroupUseCase',
+    AddMemberToGroupUseCase,
+    diContainer.get('GroupMemberRepository')
+  )
+  diContainer.register(
     'CreateGroupUseCase',
     CreateGroupUseCase,
     diContainer.get('GroupRepository')
