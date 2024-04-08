@@ -25,6 +25,17 @@ export class DIContainer<DependencyTypes> {
     }
   }
 
+  registerInstance<Key extends keyof DependencyTypes>(
+    key: Key,
+    instance: DependencyTypes[Key]
+  ): void {
+    const factory = () => instance
+    const entry = this.registry.get(key)
+    if (!entry || !entry.isOverride) {
+      this.registry.set(key, { factory, instance })
+    }
+  }
+
   get<K extends keyof DependencyTypes>(key: K): DependencyTypes[K] {
     if (this.overrides.has(key)) {
       return this.overrides.get(key) as DependencyTypes[K]
