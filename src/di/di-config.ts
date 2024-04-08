@@ -6,6 +6,7 @@ import { ICreateGroupUseCase } from '../models/use-cases/create-group'
 import { IFetchGroupUseCase } from '../models/use-cases/fetch-group'
 import { IFetchGroupExpensesUseCase } from '../models/use-cases/fetch-group-expenses'
 import { IFetchGroupMembersUseCase } from '../models/use-cases/fetch-group-members'
+import { IRemoveMemberFromGroupUseCase } from '../models/use-cases/remove-member-from-group'
 import { DIContainer } from './di-container'
 
 type DependencyTypes = {
@@ -23,6 +24,7 @@ type DependencyTypes = {
   FetchGroupExpensesUseCase: IFetchGroupExpensesUseCase
   FetchGroupMembersUseCase: IFetchGroupMembersUseCase
   FetchGroupUseCase: IFetchGroupUseCase
+  RemoveMemberFromGroupUseCase: IRemoveMemberFromGroupUseCase
 }
 
 const diContainer = new DIContainer<DependencyTypes>()

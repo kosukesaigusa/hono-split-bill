@@ -12,6 +12,7 @@ import { CreateGroupUseCase } from './models/use-cases/create-group'
 import { FetchGroupUseCase } from './models/use-cases/fetch-group'
 import { FetchGroupExpensesUseCase } from './models/use-cases/fetch-group-expenses'
 import { FetchGroupMembersUseCase } from './models/use-cases/fetch-group-members'
+import { RemoveMemberFromGroupUseCase } from './models/use-cases/remove-member-from-group'
 
 type Bindings = { DB: D1Database }
 
@@ -50,6 +51,12 @@ app.use('*', (c, next) => {
     FetchGroupUseCase,
     diContainer.get('GroupRepository')
   )
+  diContainer.register(
+    'RemoveMemberFromGroupUseCase',
+    RemoveMemberFromGroupUseCase,
+    diContainer.get('GroupMemberRepository')
+  )
+
   return next()
 })
 
