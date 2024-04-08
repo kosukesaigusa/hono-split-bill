@@ -17,6 +17,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 app.use('*', (c, next) => {
   const db = c.env.DB
+  diContainer.registerInstance('db', db)
+
   diContainer.register('GroupExpensesRepository', GroupExpensesRepository, db)
   diContainer.register('GroupMembersRepository', GroupMembersRepository, db)
   diContainer.register('GroupRepository', GroupRepository, db)
