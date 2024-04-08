@@ -66,26 +66,41 @@ app.get('/', async (c) => {
   return c.json({ message: 'Hello, World!' })
 })
 
-app.get('/api/groups/:groupUuid', async (c) => {
-  const groupUuid = c.req.param().groupUuid
-  const fetchGroupUseCase = diContainer.get('FetchGroupUseCase')
-  const group = await fetchGroupUseCase.invoke(groupUuid)
-  if (!group) return c.notFound()
+app.get(
+  '/api/groups/:groupUuid',
+  zValidator(
+    'param',
+    z.object({
+      groupUuid: z.string(),
+    })
+  ),
+  async (c) => {
+    const { groupUuid } = c.req.valid('param')
+    const fetchGroupUseCase = diContainer.get('FetchGroupUseCase')
+    const group = await fetchGroupUseCase.invoke(groupUuid)
+    if (!group) return c.notFound()
 
-  return c.json({ group })
-})
+    return c.json({ group })
+  }
+)
 
 app.get(
   '/api/groups/:groupUuid/members',
   zValidator(
+    'param',
+    z.object({
+      groupUuid: z.string(),
+    })
+  ),
+  zValidator(
     'query',
     z.object({
-      page: z.number().min(1).optional(),
-      perPage: z.number().min(1).max(30).optional(),
+      page: z.string().pipe(z.coerce.number().min(1)).optional(),
+      perPage: z.string().pipe(z.coerce.number().min(1).max(20)).optional(),
     })
   ),
   async (c) => {
-    const groupUuid = c.req.param().groupUuid
+    const { groupUuid } = c.req.valid('param')
     const { page, perPage } = c.req.valid('query')
     const limit = perPage ?? 10
     const offset = (page ?? 1 - 1) * limit
@@ -104,13 +119,19 @@ app.get(
 app.post(
   '/api/groups/:groupUuid/members',
   zValidator(
+    'param',
+    z.object({
+      groupUuid: z.string(),
+    })
+  ),
+  zValidator(
     'json',
     z.object({
       name: z.string().min(1).max(255),
     })
   ),
   async (c) => {
-    const groupUuid = c.req.param().groupUuid
+    const { groupUuid } = c.req.valid('param')
     const { name } = c.req.valid('json')
     const addMemberToGroupUseCase = diContainer.get('AddMemberToGroupUseCase')
     const member = await addMemberToGroupUseCase.invoke({ groupUuid, name })
@@ -158,14 +179,20 @@ app.post(
 app.get(
   '/api/groups/:groupUuid/expenses',
   zValidator(
+    'param',
+    z.object({
+      groupUuid: z.string(),
+    })
+  ),
+  zValidator(
     'query',
     z.object({
-      page: z.number().min(1).optional(),
-      perPage: z.number().min(1).max(30).optional(),
+      page: z.string().pipe(z.coerce.number().min(1)).optional(),
+      perPage: z.string().pipe(z.coerce.number().min(1).max(20)).optional(),
     })
   ),
   async (c) => {
-    const groupUuid = c.req.param().groupUuid
+    const { groupUuid } = c.req.valid('param')
     const { page, perPage } = c.req.valid('query')
     const limit = perPage ?? 10
     const offset = (page ?? 1 - 1) * limit
