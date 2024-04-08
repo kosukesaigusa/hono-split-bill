@@ -21,6 +21,10 @@ describe('GET /', () => {
 })
 
 describe('GET /api/groups/:groupUuid', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
   test('should return status 404 if group query result is undefined', async () => {
     class MockUndefinedGroupRepository implements IGroupRepository {
       async fetchGroup() {
@@ -66,6 +70,10 @@ describe('GET /api/groups/:groupUuid', () => {
 })
 
 describe('GET /api/groups/:groupUuid/members', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
   test('should return status 200', async () => {
     class MockGroupMembersRepository implements IGroupMembersRepository {
       async fetchGroupMembers() {
@@ -101,6 +109,10 @@ describe('GET /api/groups/:groupUuid/members', () => {
 })
 
 describe('GET /api/groups/:groupUuid/expenses', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
   test('should return status 200', async () => {
     class MockGroupExpensesRepository implements IGroupExpensesRepository {
       async fetchGroupExpenses() {
