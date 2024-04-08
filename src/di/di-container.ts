@@ -8,6 +8,11 @@ export class DIContainer<DependencyTypes> {
     }
   >()
 
+  private overrides = new Map<
+    keyof DependencyTypes,
+    DependencyTypes[keyof DependencyTypes]
+  >()
+
   register<Key extends keyof DependencyTypes, Args extends unknown[]>(
     key: Key,
     Constructor: new (...args: Args) => DependencyTypes[Key],
@@ -21,6 +26,9 @@ export class DIContainer<DependencyTypes> {
   }
 
   get<K extends keyof DependencyTypes>(key: K): DependencyTypes[K] {
+    if (this.overrides.has(key)) {
+      return this.overrides.get(key) as DependencyTypes[K]
+    }
     const entry = this.registry.get(key)
     if (!entry) {
       throw new Error(`No instance found for key: ${String(key)}`)
@@ -33,12 +41,12 @@ export class DIContainer<DependencyTypes> {
 
   override<Key extends keyof DependencyTypes>(
     key: Key,
-    mockInstance: DependencyTypes[Key]
+    instance: DependencyTypes[Key]
   ): void {
-    this.registry.set(key, {
-      factory: () => mockInstance,
-      instance: mockInstance,
-      isOverride: true,
-    })
+    this.overrides.set(key, instance)
+  }
+
+  clearOverrides(): void {
+    this.overrides.clear()
   }
 }
