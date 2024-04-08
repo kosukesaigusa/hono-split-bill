@@ -7,6 +7,7 @@ import { diContainer } from './di/di-config'
 import { GroupRepository } from './models/repositories/group'
 import { GroupExpenseRepository } from './models/repositories/group-expense'
 import { GroupMemberRepository } from './models/repositories/group-member'
+import { AddMemberToGroupUseCase } from './models/use-cases/add-member-to-group'
 import { CreateGroupUseCase } from './models/use-cases/create-group'
 import { FetchGroupUseCase } from './models/use-cases/fetch-group'
 import { FetchGroupExpensesUseCase } from './models/use-cases/fetch-group-expenses'
@@ -92,6 +93,22 @@ app.get(
     return c.json({ members })
   }
 )
+
+app.post(
+  '/api/groups/:groupUuid/members',
+  zValidator(
+    'json',
+    z.object({
+      name: z.string().min(1).max(255),
+    })
+  ),
+  async (c) => {
+    const groupUuid = c.req.param().groupUuid
+    const { name } = c.req.valid('json')
+    const addMemberToGroupUseCase = diContainer.get('AddMemberToGroupUseCase')
+    const member = await addMemberToGroupUseCase.invoke({ groupUuid, name })
+
+    return c.json({ member })
   }
 )
 
