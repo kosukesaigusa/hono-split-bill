@@ -7,10 +7,6 @@ DROP TABLE IF EXISTS GroupMembers;
 
 DROP TABLE IF EXISTS Groups;
 
--- ALTER TABLE
---   "users"
--- ADD
---   COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
 -- グループテーブルの作成
 CREATE TABLE IF NOT EXISTS Groups (
   group_id INTEGER PRIMARY KEY,
