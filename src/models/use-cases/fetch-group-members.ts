@@ -1,21 +1,29 @@
 import { Member } from '../../schema'
-import { queryGroupMembers } from '../repositories/group-members'
+import { IGroupMembersRepository } from '../repositories/group-members'
 
 type Param = {
-  db: D1Database
   groupUuid: string
+  limit: number
+  offset: number
 }
 
-export const fetchGroupMembers = async (param: Param): Promise<Member[]> => {
-  const rawMembers = await queryGroupMembers({
-    db: param.db,
-    groupUuid: param.groupUuid,
-  })
+export interface IFetchGroupMembersUseCase {
+  invoke(param: Param): Promise<Member[] | undefined>
+}
 
-  return rawMembers.map((r) => {
-    return {
-      member_id: r.member_id,
-      member_name: r.member_name,
-    }
-  })
+export class FetchGroupMembersUseCase implements IFetchGroupMembersUseCase {
+  constructor(
+    private readonly groupMemberRepository: IGroupMembersRepository
+  ) {}
+
+  async invoke(param: Param): Promise<Member[] | undefined> {
+    const rawMembers = await this.groupMemberRepository.fetchGroupMembers(param)
+
+    return rawMembers.map((r) => {
+      return {
+        member_id: r.member_id,
+        member_name: r.member_name,
+      }
+    })
+  }
 }

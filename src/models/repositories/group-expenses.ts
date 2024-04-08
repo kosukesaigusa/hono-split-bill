@@ -1,5 +1,4 @@
 type Param = {
-  db: D1Database
   groupUuid: string
   limit: number
   offset: number
@@ -16,15 +15,20 @@ export type RawExpense = {
   participant_member_name: string
 }
 
-export const queryGroupExpenses = async (
-  param: Param
-): Promise<RawExpense[]> => {
-  const { groupUuid, limit, offset } = param
+export interface IGroupExpensesRepository {
+  fetchGroupExpenses(param: Param): Promise<RawExpense[]>
+}
 
-  const { results } = await param.db
-    .prepare(
-      `
-SELECT 
+export class GroupExpensesRepository implements IGroupExpensesRepository {
+  constructor(private readonly db: D1Database) {}
+
+  async fetchGroupExpenses(param: Param): Promise<RawExpense[]> {
+    const { groupUuid, limit, offset } = param
+
+    const { results } = await this.db
+      .prepare(
+        `
+SELECT
   e.expense_id,
   e.amount,
   e.description,
@@ -42,20 +46,21 @@ WHERE g.group_uuid = ?
 ORDER BY e.created_at DESC
 LIMIT ? OFFSET ?;
 `
-    )
-    .bind(groupUuid, limit, offset)
-    .all()
+      )
+      .bind(groupUuid, limit, offset)
+      .all()
 
-  return results.map((r) => {
-    return {
-      expense_id: r.expense_id as number,
-      amount: r.amount as number,
-      description: r.description as string,
-      created_at: r.created_at as string,
-      paid_by_member_id: r.paid_by_member_id as number,
-      paid_by_member_name: r.paid_by_member_name as string,
-      participant_member_id: r.participant_member_id as number,
-      participant_member_name: r.participant_member_name as string,
-    }
-  })
+    return results.map((r) => {
+      return {
+        expense_id: r.expense_id as number,
+        amount: r.amount as number,
+        description: r.description as string,
+        created_at: r.created_at as string,
+        paid_by_member_id: r.paid_by_member_id as number,
+        paid_by_member_name: r.paid_by_member_name as string,
+        participant_member_id: r.participant_member_id as number,
+        participant_member_name: r.participant_member_name as string,
+      }
+    })
+  }
 }

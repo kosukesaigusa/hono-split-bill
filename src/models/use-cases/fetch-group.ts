@@ -1,22 +1,22 @@
 import { Group } from '../../schema'
-import { queryGroup } from '../repositories/group'
+import { IGroupRepository } from '../repositories/group'
 
-type Param = {
-  db: D1Database
-  groupUuid: string
+export interface IFetchGroupUseCase {
+  invoke(groupUuid: string): Promise<Group | undefined>
 }
 
-export const fetchGroup = async (param: Param): Promise<Group | undefined> => {
-  const group = await queryGroup({
-    db: param.db,
-    groupUuid: param.groupUuid,
-  })
+export class FetchGroupUseCase implements IFetchGroupUseCase {
+  constructor(private readonly groupRepository: IGroupRepository) {}
 
-  if (!group) return undefined
+  async invoke(groupUuid: string): Promise<Group | undefined> {
+    const group = await this.groupRepository.fetchGroup(groupUuid)
 
-  return {
-    group_id: group.group_id,
-    group_uuid: group.group_uuid,
-    group_name: group.group_name,
+    if (!group) return undefined
+
+    return {
+      group_id: group.group_id,
+      group_uuid: group.group_uuid,
+      group_name: group.group_name,
+    }
   }
 }

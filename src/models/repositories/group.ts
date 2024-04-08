@@ -1,29 +1,28 @@
-type Param = {
-  db: D1Database
-  groupUuid: string
-}
-
 export type RawGroup = {
   group_id: number
   group_uuid: string
   group_name: string
 }
 
-export const queryGroup = async (
-  param: Param
-): Promise<RawGroup | undefined> => {
-  const groupUuid = param.groupUuid
+export interface IGroupRepository {
+  fetchGroup(groupUuid: string): Promise<RawGroup | undefined>
+}
 
-  const result = await param.db
-    .prepare('SELECT * FROM Groups WHERE group_uuid = ?')
-    .bind(groupUuid)
-    .first()
+export class GroupRepository implements IGroupRepository {
+  constructor(private readonly db: D1Database) {}
 
-  if (!result) return undefined
+  async fetchGroup(groupUuid: string): Promise<RawGroup | undefined> {
+    const result = await this.db
+      .prepare('SELECT * FROM Groups WHERE group_uuid = ?')
+      .bind(groupUuid)
+      .first()
 
-  return {
-    group_id: result.group_id as number,
-    group_uuid: result.group_uuid as string,
-    group_name: result.group_name as string,
+    if (!result) return undefined
+
+    return {
+      group_id: result.group_id as number,
+      group_uuid: result.group_uuid as string,
+      group_name: result.group_name as string,
+    }
   }
 }
