@@ -296,6 +296,53 @@ describe('POST /api/groups/:groupUuid/members', () => {
   })
 })
 
+describe('DELETE /api/groups/:groupUuid/members/:memberId', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
+  test('should return status 400 if memberId is not a number', async () => {
+    const res = await app.request(
+      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members/abc',
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 200', async () => {
+    class MockGroupMembersRepository implements IGroupMemberRepository {
+      async deleteGroupMember() {
+        return
+      }
+      addGroupMember(): Promise<RawMember> {
+        throw new Error('Method not implemented.')
+      }
+      fetchGroupMembers(): Promise<RawMember[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    diContainer.override(
+      'GroupMemberRepository',
+      new MockGroupMembersRepository()
+    )
+
+    const res = await app.request(
+      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members/1',
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(200)
+  })
+})
+
 describe('GET /api/groups/:groupUuid/expenses', () => {
   afterEach(() => {
     diContainer.clearOverrides()
