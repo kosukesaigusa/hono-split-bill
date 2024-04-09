@@ -9,15 +9,13 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.1",
-    "hono": "^4.2.0",
-    "uuid": "^9.0.1",
+    "hono": "^4.2.3",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",
     "@hono/vite-cloudflare-pages": "^0.2.4",
     "@hono/vite-dev-server": "^0.10.0",
-    "@types/uuid": "^9.0.8",
     "vite": "^5.0.12",
     "vitest": "^1.4.0",
     "wrangler": "^3.32.0"
