@@ -1,5 +1,5 @@
 import { Group } from '../../schema'
-import { uuid } from '../../utils'
+import { uuid } from '../../utils/uuid'
 import { IGroupRepository } from '../repositories/group'
 
 export interface ICreateGroupUseCase {
@@ -16,8 +16,8 @@ export class CreateGroupUseCase implements ICreateGroupUseCase {
     })
 
     return {
-      group_uuid: group.group_uuid,
-      group_name: group.group_name,
+      groupUuid: group.groupUuid,
+      groupName: group.groupName,
     }
   }
 }

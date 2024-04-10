@@ -1,6 +1,6 @@
 export type RawMember = {
-  member_uuid: string
-  member_name: string
+  memberUuid: string
+  memberName: string
 }
 
 export interface IGroupMemberRepository {
@@ -42,8 +42,8 @@ LIMIT ? OFFSET ?;
       .all()
     return results.map((r) => {
       return {
-        member_uuid: r.member_uuid as string,
-        member_name: r.member_name as string,
+        memberUuid: r.member_uuid as string,
+        memberName: r.member_name as string,
       }
     })
   }
@@ -76,8 +76,8 @@ WHERE g.group_uuid = ?;
     if (!createdMember) throw new Error('Failed to fetch created member')
 
     return {
-      member_uuid: createdMember.member_uuid as string,
-      member_name: createdMember.member_name as string,
+      memberUuid: createdMember.member_uuid as string,
+      memberName: createdMember.member_name as string,
     }
   }
 

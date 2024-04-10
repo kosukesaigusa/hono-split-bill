@@ -30,25 +30,25 @@ export class FetchGroupExpensesUseCase implements IFetchGroupExpensesUseCase {
 
   private transformExpense(rawExpenses: RawExpense[]): Expense[] {
     return rawExpenses.reduce((acc: Expense[], curr) => {
-      let expense = acc.find((exp) => exp.expense_id === curr.expense_id)
+      let expense = acc.find((exp) => exp.expenseUuid === curr.expenseUuid)
       if (!expense) {
         expense = {
-          expense_id: curr.expense_id,
+          expenseUuid: curr.expenseUuid,
           amount: curr.amount,
           description: curr.description,
-          created_at: curr.created_at,
-          paid_by_member: {
-            member_uuid: curr.paid_by_member_uuid,
-            member_name: curr.paid_by_member_name,
+          createdAt: curr.createdAt,
+          paidByMember: {
+            memberUuid: curr.paidByMemberUuid,
+            memberName: curr.paidByMemberName,
           },
-          participant_members: [],
+          participantMembers: [],
         }
         acc.push(expense)
       }
-      if (curr.participant_member_uuid) {
-        expense.participant_members.push({
-          member_uuid: curr.participant_member_uuid,
-          member_name: curr.participant_member_name,
+      if (curr.participantMemberUuid) {
+        expense.participantMembers.push({
+          memberUuid: curr.participantMemberUuid,
+          memberName: curr.participantMemberName,
         })
       }
       return acc

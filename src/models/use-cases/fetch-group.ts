@@ -14,8 +14,8 @@ export class FetchGroupUseCase implements IFetchGroupUseCase {
     if (!group) return undefined
 
     return {
-      group_uuid: group.group_uuid,
-      group_name: group.group_name,
+      groupUuid: group.groupUuid,
+      groupName: group.groupName,
     }
   }
 }

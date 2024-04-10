@@ -21,8 +21,8 @@ export class FetchGroupMembersUseCase implements IFetchGroupMembersUseCase {
 
     return rawMembers.map((r) => {
       return {
-        member_uuid: r.member_uuid,
-        member_name: r.member_name,
+        memberUuid: r.memberUuid,
+        memberName: r.memberName,
       }
     })
   }

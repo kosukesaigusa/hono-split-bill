@@ -7,6 +7,7 @@ import { diContainer } from './di/di-config'
 import { GroupRepository } from './models/repositories/group'
 import { GroupExpenseRepository } from './models/repositories/group-expense'
 import { GroupMemberRepository } from './models/repositories/group-member'
+import { AddExpenseUseCase } from './models/use-cases/add-expense'
 import { AddMemberToGroupUseCase } from './models/use-cases/add-member-to-group'
 import { CreateGroupUseCase } from './models/use-cases/create-group'
 import { FetchGroupUseCase } from './models/use-cases/fetch-group'
@@ -26,6 +27,11 @@ app.use('*', (c, next) => {
   diContainer.register('GroupMemberRepository', GroupMemberRepository, db)
   diContainer.register('GroupRepository', GroupRepository, db)
 
+  diContainer.register(
+    'AddExpenseUseCase',
+    AddExpenseUseCase,
+    diContainer.get('GroupExpenseRepository')
+  )
   diContainer.register(
     'AddMemberToGroupUseCase',
     AddMemberToGroupUseCase,
@@ -95,8 +101,8 @@ app.get(
   zValidator(
     'query',
     z.object({
-      page: z.string().pipe(z.coerce.number().min(1)).optional(),
-      perPage: z.string().pipe(z.coerce.number().min(1).max(20)).optional(),
+      page: z.coerce.number().min(1).optional(),
+      perPage: z.coerce.number().min(1).max(20).optional(),
     })
   ),
   async (c) => {
@@ -186,8 +192,8 @@ app.get(
   zValidator(
     'query',
     z.object({
-      page: z.string().pipe(z.coerce.number().min(1)).optional(),
-      perPage: z.string().pipe(z.coerce.number().min(1).max(20)).optional(),
+      page: z.coerce.number().min(1).optional(),
+      perPage: z.coerce.number().min(1).max(20).optional(),
     })
   ),
   async (c) => {
@@ -211,24 +217,43 @@ app.get(
   }
 )
 
-// app.post(
-//   '/api/groups/:groupUuid/expenses',
-//   zValidator(
-//     'param',
-//     z.object({
-//       groupUuid: z.string(),
-//     })
-//   ),
-//   zValidator(
-//     'json',
-//     z.object({
-//       paidByMemberId: z.string().pipe(z.coerce.number()),
-//       participantIds: z.array(z.string().pipe(z.coerce.number())).min(1),
-//       amount: z.string().pipe(z.coerce.number().min(1).max(1000000)),
-//       description: z.string().min(1).max(255),
-//     })
-//   ),
-//   async (c) => {}
-// )
+app.post(
+  '/api/groups/:groupUuid/expenses',
+  zValidator(
+    'param',
+    z.object({
+      groupUuid: z.string(),
+    })
+  ),
+  zValidator(
+    'json',
+    z.object({
+      paidByMemberUuid: z.string().min(1),
+      participantMemberUuids: z.array(z.string()).min(1),
+      amount: z.coerce.number().min(1).max(1000000),
+      description: z.string().min(1).max(255),
+    })
+  ),
+  async (c) => {
+    const { groupUuid } = c.req.valid('param')
+    const { paidByMemberUuid, participantMemberUuids, amount, description } =
+      c.req.valid('json')
+
+    const addExpenseUseCase = diContainer.get('AddExpenseUseCase')
+    const { expense, error } = await addExpenseUseCase.invoke({
+      groupUuid,
+      paidByMemberUuid: paidByMemberUuid,
+      participantMemberUuids: participantMemberUuids,
+      amount,
+      description,
+    })
+
+    if (error) {
+      return c.json({ message: error.message }, 400)
+    }
+
+    return c.json({ expense })
+  }
+)
 
 export default app

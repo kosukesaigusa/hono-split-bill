@@ -1,6 +1,6 @@
 export type RawGroup = {
-  group_uuid: string
-  group_name: string
+  groupUuid: string
+  groupName: string
 }
 
 export interface IGroupRepository {
@@ -21,8 +21,8 @@ export class GroupRepository implements IGroupRepository {
     if (!result) return undefined
 
     return {
-      group_uuid: result.group_uuid as string,
-      group_name: result.group_name as string,
+      groupUuid: result.group_uuid as string,
+      groupName: result.group_name as string,
     }
   }
 
@@ -47,8 +47,8 @@ export class GroupRepository implements IGroupRepository {
     if (!createdGroup) throw new Error('Failed to fetch created group')
 
     return {
-      group_uuid: createdGroup.group_uuid as string,
-      group_name: createdGroup.group_name as string,
+      groupUuid: createdGroup.group_uuid as string,
+      groupName: createdGroup.group_name as string,
     }
   }
 }

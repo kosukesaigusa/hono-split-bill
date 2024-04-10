@@ -1,12 +1,20 @@
 export type RawExpense = {
-  expense_id: number
+  expenseUuid: string
   amount: number
   description: string
-  created_at: string
-  paid_by_member_uuid: string
-  paid_by_member_name: string
-  participant_member_uuid: string
-  participant_member_name: string
+  createdAt: string
+  paidByMemberUuid: string
+  paidByMemberName: string
+  participantMemberUuid: string
+  participantMemberName: string
+}
+
+export type RawCreatedExpense = {
+  expenseUuid: string
+  amount: number
+  description: string
+  createdAt: string
+  paidByMemberUuid: string
 }
 
 export interface IGroupExpenseRepository {
@@ -16,13 +24,14 @@ export interface IGroupExpenseRepository {
     offset: number
   }): Promise<RawExpense[]>
 
-  addExpense(param: {
+  addGroupExpense(param: {
+    expenseUuid: string
     groupUuid: string
-    amount: number
+    paidByMemberUuid: string
     description: string
-    paidByMemberId: number
-    participantMemberIds: number[]
-  }): Promise<RawExpense>
+    amount: number
+    participantMemberUuids: string[]
+  }): Promise<RawCreatedExpense>
 }
 
 export class GroupExpenseRepository implements IGroupExpenseRepository {
@@ -39,7 +48,7 @@ export class GroupExpenseRepository implements IGroupExpenseRepository {
       .prepare(
         `
 SELECT
-  e.expense_id,
+  e.expense_uuid,
   e.amount,
   e.description,
   e.created_at,
@@ -62,33 +71,70 @@ LIMIT ? OFFSET ?;
 
     return results.map((r) => {
       return {
-        expense_id: r.expense_id as number,
+        expenseUuid: r.expense_uuid as string,
         amount: r.amount as number,
         description: r.description as string,
-        created_at: r.created_at as string,
-        paid_by_member_uuid: r.paid_by_member_uuid as string,
-        paid_by_member_name: r.paid_by_member_name as string,
-        participant_member_uuid: r.participant_member_uuid as string,
-        participant_member_name: r.participant_member_name as string,
+        createdAt: r.created_at as string,
+        paidByMemberUuid: r.paid_by_member_uuid as string,
+        paidByMemberName: r.paid_by_member_name as string,
+        participantMemberUuid: r.participant_member_uuid as string,
+        participantMemberName: r.participant_member_name as string,
       }
     })
   }
 
-  async addExpense(param: {
+  async addGroupExpense(param: {
+    expenseUuid: string
     groupUuid: string
-    amount: number
+    paidByMemberUuid: string
     description: string
-    paidByMemberId: number
-    participantMemberIds: number[]
-  }): Promise<RawExpense> {
+    amount: number
+    participantMemberUuids: string[]
+  }): Promise<RawCreatedExpense> {
     const {
+      expenseUuid,
       groupUuid,
-      amount,
+      paidByMemberUuid,
       description,
-      paidByMemberId,
-      participantMemberIds,
+      amount,
+      participantMemberUuids,
     } = param
 
-    throw new Error('Not implemented')
+    const statements = [
+      this.db
+        .prepare(
+          `
+INSERT INTO Expenses (expense_uuid, group_id, paid_by_member_uuid, description, amount)
+VALUES (?, (SELECT group_id FROM Groups WHERE group_uuid = ?), ?, ?, ?);
+`
+        )
+        .bind(expenseUuid, groupUuid, paidByMemberUuid, description, amount),
+      ...participantMemberUuids.map((participantMemberUuid) =>
+        this.db
+          .prepare(
+            `INSERT INTO ExpenseParticipants (expense_uuid, member_uuid) VALUES (?, ?);`
+          )
+          .bind(expenseUuid, participantMemberUuid)
+      ),
+    ]
+
+    const results = await this.db.batch(statements)
+
+    if (results.some((r) => r.error)) throw new Error('Failed to add expense')
+
+    const createdExpense = await this.db
+      .prepare(`'SELECT * FROM Expenses WHERE expense_uuid = ?;`)
+      .bind(expenseUuid)
+      .first()
+
+    if (!createdExpense) throw new Error('Failed to fetch created expense')
+
+    return {
+      expenseUuid: createdExpense.expense_uuid as string,
+      amount: createdExpense.amount as number,
+      description: createdExpense.description as string,
+      createdAt: createdExpense.created_at as string,
+      paidByMemberUuid: createdExpense.paid_by_member_uuid as string,
+    }
   }
 }

@@ -1,18 +1,26 @@
 export type Group = {
-  group_uuid: string
-  group_name: string
+  groupUuid: string
+  groupName: string
 }
 
 export type Expense = {
-  expense_id: number
+  expenseUuid: string
   amount: number
   description: string
-  created_at: string
-  paid_by_member: Member
-  participant_members: Member[]
+  createdAt: string
+  paidByMember: Member
+  participantMembers: Member[]
+}
+
+export type CreatedExpense = {
+  expenseUuid: string
+  amount: number
+  description: string
+  createdAt: string
+  paidByMemberUuid: string
 }
 
 export type Member = {
-  member_uuid: string
-  member_name: string
+  memberUuid: string
+  memberName: string
 }

@@ -60,8 +60,8 @@ describe('GET /api/groups/:groupUuid', () => {
       }
       async fetchGroup() {
         return {
-          group_uuid: 'test-group-uuid-1',
-          group_name: 'Test Group 1',
+          groupUuid: 'test-group-uuid-1',
+          groupName: 'Test Group 1',
         }
       }
     }
@@ -78,8 +78,8 @@ describe('GET /api/groups/:groupUuid', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       group: {
-        group_uuid: 'test-group-uuid-1',
-        group_name: 'Test Group 1',
+        groupUuid: 'test-group-uuid-1',
+        groupName: 'Test Group 1',
       },
     })
   })
@@ -133,8 +133,8 @@ describe('POST /api/groups', () => {
     class MockGroupRepository implements IGroupRepository {
       async createGroup() {
         return {
-          group_uuid: 'test-group-uuid-1',
-          group_name: 'Test Group 1',
+          groupUuid: 'test-group-uuid-1',
+          groupName: 'Test Group 1',
         }
       }
       async fetchGroup(): Promise<RawGroup> {
@@ -156,8 +156,8 @@ describe('POST /api/groups', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       group: {
-        group_uuid: 'test-group-uuid-1',
-        group_name: 'Test Group 1',
+        groupUuid: 'test-group-uuid-1',
+        groupName: 'Test Group 1',
       },
     })
   })
@@ -179,8 +179,8 @@ describe('GET /api/groups/:groupUuid/members', () => {
       async fetchGroupMembers() {
         return [
           {
-            member_uuid: 'test-member-uuid-1',
-            member_name: 'Test Member 1',
+            memberUuid: 'test-member-uuid-1',
+            memberName: 'Test Member 1',
           },
         ]
       }
@@ -202,8 +202,8 @@ describe('GET /api/groups/:groupUuid/members', () => {
     expect(await res.json()).toEqual({
       members: [
         {
-          member_uuid: 'test-member-uuid-1',
-          member_name: 'Test Member 1',
+          memberUuid: 'test-member-uuid-1',
+          memberName: 'Test Member 1',
         },
       ],
     })
@@ -261,8 +261,8 @@ describe('POST /api/groups/:groupUuid/members', () => {
       }
       async addGroupMember() {
         return {
-          member_uuid: 'test-member-uuid-3',
-          member_name: 'Test Member 3',
+          memberUuid: 'test-member-uuid-3',
+          memberName: 'Test Member 3',
         }
       }
 
@@ -288,8 +288,8 @@ describe('POST /api/groups/:groupUuid/members', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       member: {
-        member_uuid: 'test-member-uuid-3',
-        member_name: 'Test Member 3',
+        memberUuid: 'test-member-uuid-3',
+        memberName: 'Test Member 3',
       },
     })
   })
@@ -337,38 +337,33 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
 
   test('should return status 200', async () => {
     class MockGroupExpensesRepository implements IGroupExpenseRepository {
-      addExpense(param: {
-        groupUuid: string
-        amount: number
-        description: string
-        paidByMemberId: number
-        participantMemberIds: number[]
-      }): Promise<RawExpense> {
-        throw new Error('Method not implemented.')
-      }
       async fetchGroupExpenses() {
         return [
           {
-            expense_id: 1,
+            expenseUuid: 'test-expense-uuid-1',
             amount: 100,
             description: 'Test Expense',
-            created_at: '2021-01-01T00:00:00Z',
-            paid_by_member_uuid: 'test-member-uuid-1',
-            paid_by_member_name: 'Test Member 1',
-            participant_member_uuid: 'test-member-uuid-1',
-            participant_member_name: 'Test Member 1',
+            createdAt: '2021-01-01T00:00:00Z',
+            paidByMemberUuid: 'test-member-uuid-1',
+            paidByMemberName: 'Test Member 1',
+            participantMemberUuid: 'test-member-uuid-1',
+            participantMemberName: 'Test Member 1',
           },
           {
-            expense_id: 1,
+            expenseUuid: 'test-expense-uuid-1',
             amount: 100,
             description: 'Test Expense',
-            created_at: '2021-01-01T00:00:00Z',
-            paid_by_member_uuid: 'test-member-uuid-1',
-            paid_by_member_name: 'Test Member 1',
-            participant_member_uuid: 'test-member-uuid-2',
-            participant_member_name: 'Test Member 2',
+            createdAt: '2021-01-01T00:00:00Z',
+            paidByMemberUuid: 'test-member-uuid-1',
+            paidByMemberName: 'Test Member 1',
+            participantMemberUuid: 'test-member-uuid-2',
+            participantMemberName: 'Test Member 2',
           },
         ]
+      }
+
+      addGroupExpense(): Promise<RawExpense> {
+        throw new Error('Method not implemented.')
       }
     }
 
@@ -389,26 +384,296 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
       totalCount: 1,
       expenses: [
         {
-          expense_id: 1,
+          expenseUuid: 'test-expense-uuid-1',
           amount: 100,
           description: 'Test Expense',
-          created_at: '2021-01-01T00:00:00Z',
-          paid_by_member: {
-            member_uuid: 'test-member-uuid-1',
-            member_name: 'Test Member 1',
+          createdAt: '2021-01-01T00:00:00Z',
+          paidByMember: {
+            memberUuid: 'test-member-uuid-1',
+            memberName: 'Test Member 1',
           },
-          participant_members: [
+          participantMembers: [
             {
-              member_uuid: 'test-member-uuid-1',
-              member_name: 'Test Member 1',
+              memberUuid: 'test-member-uuid-1',
+              memberName: 'Test Member 1',
             },
             {
-              member_uuid: 'test-member-uuid-2',
-              member_name: 'Test Member 2',
+              memberUuid: 'test-member-uuid-2',
+              memberName: 'Test Member 2',
             },
           ],
         },
       ],
+    })
+  })
+})
+
+describe('POST /api/groups/:groupUuid/expenses', () => {
+  afterEach(() => {
+    diContainer.clearOverrides()
+  })
+
+  test('should return status 400 if paidByMemberUuid is not set', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 100,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if paidByMemberUuid is empty', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: '',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 100,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if participantMemberUuids is not set', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          amount: 100,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if participantMemberUuids is empty', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: [],
+          amount: 100,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if participantMemberUuids is equal to [paidByMemberUuid]', async () => {
+    class MockGroupExpensesRepository implements IGroupExpenseRepository {
+      async addGroupExpense(): Promise<RawExpense> {
+        throw new Error('Method not implemented.')
+      }
+
+      fetchGroupExpenses(): Promise<RawExpense[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    diContainer.override(
+      'GroupExpenseRepository',
+      new MockGroupExpensesRepository()
+    )
+
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1'],
+          amount: 100,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({
+      message:
+        'Expenses with no participants other than the payer cannot be recorded.',
+    })
+  })
+
+  test('should return 400 if amount is not set', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return 400 if amount is less than 1', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 0,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return 400 if amount is greater than 1000000', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 1000001,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if description is not set', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 100,
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if description is empty', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 100,
+          description: '',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 400 if description is too long', async () => {
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 100,
+          description: 'a'.repeat(256),
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(400)
+  })
+
+  test('should return status 200', async () => {
+    class MockGroupExpensesRepository implements IGroupExpenseRepository {
+      async addGroupExpense() {
+        return {
+          expenseUuid: 'test-expense-uuid-1',
+          amount: 100,
+          description: 'Test Expense',
+          createdAt: '2021-01-01T00:00:00Z',
+          paidByMemberUuid: 'test-member-uuid-1',
+          paidByMemberName: 'Test Member 1',
+          participantMemberUuid: 'test-member-uuid-1',
+          participantMemberName: 'Test Member 1',
+        }
+      }
+
+      fetchGroupExpenses(): Promise<RawExpense[]> {
+        throw new Error('Method not implemented.')
+      }
+    }
+
+    diContainer.override(
+      'GroupExpenseRepository',
+      new MockGroupExpensesRepository()
+    )
+
+    const res = await app.request(
+      '/api/groups/test-group-uuid-1/expenses',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paidByMemberUuid: 'test-member-uuid-1',
+          participantMemberUuids: ['test-member-uuid-1', 'test-member-uuid-2'],
+          amount: 100,
+          description: 'Test Expense',
+        }),
+      },
+      MOCK_ENV
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({
+      expense: {
+        expenseUuid: 'test-expense-uuid-1',
+        amount: 100,
+        description: 'Test Expense',
+        createdAt: '2021-01-01T00:00:00Z',
+        paidByMemberUuid: 'test-member-uuid-1',
+      },
     })
   })
 })
