@@ -1,4 +1,5 @@
 import { Group } from '../../schema'
+import { uuid } from '../../utils'
 import { IGroupRepository } from '../repositories/group'
 
 export interface ICreateGroupUseCase {
@@ -10,12 +11,11 @@ export class CreateGroupUseCase implements ICreateGroupUseCase {
 
   async invoke(name: string): Promise<Group> {
     const group = await this.groupRepository.createGroup({
+      groupUuid: uuid(),
       name,
-      uuid: crypto.randomUUID(),
     })
 
     return {
-      group_id: group.group_id,
       group_uuid: group.group_uuid,
       group_name: group.group_name,
     }

@@ -1,5 +1,4 @@
 export type Group = {
-  group_id: number
   group_uuid: string
   group_name: string
 }
@@ -14,6 +13,6 @@ export type Expense = {
 }
 
 export type Member = {
-  member_id: number
+  member_uuid: string
   member_name: string
 }

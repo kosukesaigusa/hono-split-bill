@@ -141,20 +141,19 @@ app.post(
 )
 
 app.delete(
-  '/api/groups/:groupUuid/members/:memberId',
+  '/api/groups/:groupUuid/members/:memberUuid',
   zValidator(
     'param',
     z.object({
-      groupUuid: z.string(),
-      memberId: z.string().pipe(z.coerce.number()),
+      memberUuid: z.string(),
     })
   ),
   async (c) => {
-    const { groupUuid, memberId } = c.req.valid('param')
+    const { memberUuid } = c.req.valid('param')
     const removeMemberFromGroupUseCase = diContainer.get(
       'RemoveMemberFromGroupUseCase'
     )
-    await removeMemberFromGroupUseCase.invoke({ groupUuid, memberId })
+    await removeMemberFromGroupUseCase.invoke({ memberUuid })
 
     return c.json({})
   }
@@ -211,5 +210,25 @@ app.get(
     })
   }
 )
+
+// app.post(
+//   '/api/groups/:groupUuid/expenses',
+//   zValidator(
+//     'param',
+//     z.object({
+//       groupUuid: z.string(),
+//     })
+//   ),
+//   zValidator(
+//     'json',
+//     z.object({
+//       paidByMemberId: z.string().pipe(z.coerce.number()),
+//       participantIds: z.array(z.string().pipe(z.coerce.number())).min(1),
+//       amount: z.string().pipe(z.coerce.number().min(1).max(1000000)),
+//       description: z.string().min(1).max(255),
+//     })
+//   ),
+//   async (c) => {}
+// )
 
 export default app

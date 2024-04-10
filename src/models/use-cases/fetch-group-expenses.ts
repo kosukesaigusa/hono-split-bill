@@ -38,16 +38,16 @@ export class FetchGroupExpensesUseCase implements IFetchGroupExpensesUseCase {
           description: curr.description,
           created_at: curr.created_at,
           paid_by_member: {
-            member_id: curr.paid_by_member_id,
+            member_uuid: curr.paid_by_member_uuid,
             member_name: curr.paid_by_member_name,
           },
           participant_members: [],
         }
         acc.push(expense)
       }
-      if (curr.participant_member_id) {
+      if (curr.participant_member_uuid) {
         expense.participant_members.push({
-          member_id: curr.participant_member_id,
+          member_uuid: curr.participant_member_uuid,
           member_name: curr.participant_member_name,
         })
       }

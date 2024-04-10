@@ -1,5 +1,5 @@
 export type RawMember = {
-  member_id: number
+  member_uuid: string
   member_name: string
 }
 
@@ -10,12 +10,13 @@ export interface IGroupMemberRepository {
     offset?: number
   }): Promise<RawMember[]>
 
-  addGroupMember(param: { groupUuid: string; name: string }): Promise<RawMember>
-
-  deleteGroupMember(param: {
+  addGroupMember(param: {
     groupUuid: string
-    memberId: number
-  }): Promise<void>
+    memberUuid: string
+    name: string
+  }): Promise<RawMember>
+
+  deleteGroupMember(param: { memberUuid: string }): Promise<void>
 }
 
 export class GroupMemberRepository implements IGroupMemberRepository {
@@ -26,9 +27,7 @@ export class GroupMemberRepository implements IGroupMemberRepository {
     limit?: number
     offset?: number
   }): Promise<RawMember[]> {
-    const groupUuid = param.groupUuid
-    const limit = param.limit ?? 10
-    const offset = param.offset ?? 0
+    const { groupUuid, limit = 10, offset = 0 } = param
 
     const { results } = await this.db
       .prepare(
@@ -43,7 +42,7 @@ LIMIT ? OFFSET ?;
       .all()
     return results.map((r) => {
       return {
-        member_id: r.member_id as number,
+        member_uuid: r.member_uuid as string,
         member_name: r.member_name as string,
       }
     })
@@ -51,78 +50,45 @@ LIMIT ? OFFSET ?;
 
   async addGroupMember(param: {
     groupUuid: string
+    memberUuid: string
     name: string
   }): Promise<RawMember> {
-    const groupUuid = param.groupUuid
-    const name = param.name
+    const { groupUuid, memberUuid, name } = param
 
     const result = await this.db
       .prepare(
         `
-INSERT INTO GroupMembers (group_id, member_name)
-SELECT g.group_id, ? FROM Groups AS g
-WHERE g.group_uuid = ?
-  AND NOT EXISTS (
-    SELECT 1
-    FROM GroupMembers AS gm
-    WHERE gm.group_id = g.group_id
-    AND gm.member_name = ?
-  );
+INSERT INTO GroupMembers (group_id, member_uuid, member_name)
+SELECT g.group_id, ?, ? FROM Groups AS g
+WHERE g.group_uuid = ?;
 `
       )
-      .bind(name, groupUuid, name)
+      .bind(memberUuid, name, groupUuid)
       .run()
 
-    if (!result.success) {
-      throw new Error('Failed to add member')
-    }
-
-    if (!result.meta.changed_db) {
-      throw new Error('Failed to add member')
-    }
+    if (!result.success) throw new Error('Failed to add member')
 
     const createdMember = await this.db
       .prepare(`SELECT * FROM GroupMembers WHERE member_id = ?;`)
       .bind(result.meta.last_row_id)
       .first()
 
-    if (!createdMember) {
-      throw new Error('Failed to fetch created member')
-    }
+    if (!createdMember) throw new Error('Failed to fetch created member')
 
     return {
-      member_id: createdMember.member_id as number,
+      member_uuid: createdMember.member_uuid as string,
       member_name: createdMember.member_name as string,
     }
   }
 
-  async deleteGroupMember(param: {
-    groupUuid: string
-    memberId: number
-  }): Promise<void> {
-    const groupUuid = param.groupUuid
-    const memberId = param.memberId
+  async deleteGroupMember(param: { memberUuid: string }): Promise<void> {
+    const { memberUuid } = param
 
     const result = await this.db
-      .prepare(
-        `
-DELETE FROM GroupMembers
-WHERE member_id = ?
-AND group_id = (
-  SELECT g.group_id FROM Groups AS g
-  WHERE g.group_uuid = ?
-);
-`
-      )
-      .bind(memberId, groupUuid)
+      .prepare(`DELETE FROM GroupMembers WHERE member_uuid = ?;`)
+      .bind(memberUuid)
       .run()
 
-    if (!result.success) {
-      throw new Error('Failed to delete member')
-    }
-
-    if (!result.meta.changed_db) {
-      throw new Error('Failed to delete member')
-    }
+    if (!result.success) throw new Error('Failed to delete member')
   }
 }

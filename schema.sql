@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Groups (
 -- Create group members table
 CREATE TABLE IF NOT EXISTS GroupMembers (
   member_id INTEGER PRIMARY KEY,
+  member_uuid TEXT UNIQUE,
   group_id INTEGER,
   member_name TEXT,
   FOREIGN KEY (group_id) REFERENCES Groups(group_id),
@@ -28,42 +29,109 @@ CREATE TABLE IF NOT EXISTS GroupMembers (
 -- Create expenses table
 CREATE TABLE IF NOT EXISTS Expenses (
   expense_id INTEGER PRIMARY KEY,
+  expense_uuid TEXT UNIQUE,
   group_id INTEGER,
   paid_by_member_id INTEGER,
   amount DECIMAL,
   description TEXT,
-  participant_member_ids TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (group_id) REFERENCES Groups(group_id),
   FOREIGN KEY (paid_by_member_id) REFERENCES GroupMembers(member_id)
 );
 
--- Insert group data
-INSERT INTO
-  Groups (group_id, group_uuid, group_name)
-VALUES
-  (1, '123e4567-e89b-12d3-a456-426614174000', '旅行');
+-- Create expense participants table
+CREATE TABLE IF NOT EXISTS ExpenseParticipants (
+  expense_uuid TEXT,
+  member_uuid TEXT,
+  FOREIGN KEY (expense_uuid) REFERENCES Expenses(expense_uuid),
+  FOREIGN KEY (member_uuid) REFERENCES GroupMembers(member_uuid),
+  UNIQUE (expense_uuid, member_uuid)
+);
 
--- Insert group members data
+-- Insert initial Group data
 INSERT INTO
-  GroupMembers (member_id, group_id, member_name)
+  Groups (group_uuid, group_name)
 VALUES
-  (1, 1, '太郎'),
-  (2, 1, '花子'),
-  (3, 1, '次郎');
+  ('123e4567-e89b-12d3-a456-426614174000', '旅行');
 
--- Insert expenses data
+-- Insert initial GroupMembers data
+INSERT INTO
+  GroupMembers (member_uuid, group_id, member_name)
+VALUES
+  ('550e8400-e29b-41d4-a716-446655440000', 1, '太郎'),
+  ('6f9619ff-8b86-d011-b42d-00cf4fc964ff', 1, '花子'),
+  ('c56a4180-65aa-42ec-a945-5fd21dec0538', 1, '次郎');
+
+-- Insert initial Expenses data
 INSERT INTO
   Expenses (
-    expense_id,
+    expense_uuid,
     group_id,
     paid_by_member_id,
     amount,
-    description,
-    participant_member_ids
+    description
   )
 VALUES
-  (1, 1, 1, 6000, 'レンタカー', '1,2,3'),
-  (2, 1, 2, 3000, 'ガソリン', '1,2,3'),
-  (3, 1, 3, 1000, 'ランチ', '1,2,3');
+  (
+    '9f6419ff-8b86-d011-b42d-00cf4fc964aa',
+    1,
+    1,
+    6000,
+    'レンタカー'
+  ),
+  (
+    'a36419ff-8b86-d011-b42d-00cf4fc964bb',
+    1,
+    2,
+    3000,
+    'ガソリン'
+  ),
+  (
+    'b76419ff-8b86-d011-b42d-00cf4fc964cc',
+    1,
+    3,
+    1000,
+    'ランチ'
+  );
+
+-- Insert initial ExpenseParticipants data
+INSERT INTO
+  ExpenseParticipants (expense_uuid, member_uuid)
+VALUES
+  (
+    '9f6419ff-8b86-d011-b42d-00cf4fc964aa',
+    '550e8400-e29b-41d4-a716-446655440000'
+  ),
+  (
+    '9f6419ff-8b86-d011-b42d-00cf4fc964aa',
+    '6f9619ff-8b86-d011-b42d-00cf4fc964ff'
+  ),
+  (
+    '9f6419ff-8b86-d011-b42d-00cf4fc964aa',
+    'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  ),
+  (
+    'a36419ff-8b86-d011-b42d-00cf4fc964bb',
+    '550e8400-e29b-41d4-a716-446655440000'
+  ),
+  (
+    'a36419ff-8b86-d011-b42d-00cf4fc964bb',
+    '6f9619ff-8b86-d011-b42d-00cf4fc964ff'
+  ),
+  (
+    'a36419ff-8b86-d011-b42d-00cf4fc964bb',
+    'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  ),
+  (
+    'b76419ff-8b86-d011-b42d-00cf4fc964cc',
+    '550e8400-e29b-41d4-a716-446655440000'
+  ),
+  (
+    'b76419ff-8b86-d011-b42d-00cf4fc964cc',
+    '6f9619ff-8b86-d011-b42d-00cf4fc964ff'
+  ),
+  (
+    'b76419ff-8b86-d011-b42d-00cf4fc964cc',
+    'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  );

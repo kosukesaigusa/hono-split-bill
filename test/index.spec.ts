@@ -1,7 +1,10 @@
 import app from '../src'
 import { diContainer } from '../src/di/di-config'
 import { IGroupRepository, RawGroup } from '../src/models/repositories/group'
-import { IGroupExpenseRepository } from '../src/models/repositories/group-expense'
+import {
+  IGroupExpenseRepository,
+  RawExpense,
+} from '../src/models/repositories/group-expense'
 import {
   IGroupMemberRepository,
   RawMember,
@@ -30,7 +33,7 @@ describe('GET /api/groups/:groupUuid', () => {
 
   test('should return status 404 if group query result is undefined', async () => {
     class MockUndefinedGroupRepository implements IGroupRepository {
-      createGroup(param: { name: string; uuid: string }): Promise<RawGroup> {
+      createGroup(): Promise<RawGroup> {
         throw new Error('Method not implemented.')
       }
       async fetchGroup() {
@@ -41,7 +44,7 @@ describe('GET /api/groups/:groupUuid', () => {
     diContainer.override('GroupRepository', new MockUndefinedGroupRepository())
 
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000',
+      '/api/groups/test-group-uuid-1',
       {
         headers: { 'Content-Type': 'application/json' },
       },
@@ -52,14 +55,13 @@ describe('GET /api/groups/:groupUuid', () => {
 
   test('should return status 200', async () => {
     class MockGroupRepository implements IGroupRepository {
-      createGroup(param: { name: string; uuid: string }): Promise<RawGroup> {
+      createGroup(): Promise<RawGroup> {
         throw new Error('Method not implemented.')
       }
       async fetchGroup() {
         return {
-          group_id: 1,
-          group_uuid: '123e4567-e89b-12d3-a456-426614174000',
-          group_name: 'Test Group',
+          group_uuid: 'test-group-uuid-1',
+          group_name: 'Test Group 1',
         }
       }
     }
@@ -67,7 +69,7 @@ describe('GET /api/groups/:groupUuid', () => {
     diContainer.override('GroupRepository', new MockGroupRepository())
 
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000',
+      '/api/groups/test-group-uuid-1',
       {
         headers: { 'Content-Type': 'application/json' },
       },
@@ -76,9 +78,8 @@ describe('GET /api/groups/:groupUuid', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       group: {
-        group_id: 1,
-        group_uuid: '123e4567-e89b-12d3-a456-426614174000',
-        group_name: 'Test Group',
+        group_uuid: 'test-group-uuid-1',
+        group_name: 'Test Group 1',
       },
     })
   })
@@ -132,9 +133,8 @@ describe('POST /api/groups', () => {
     class MockGroupRepository implements IGroupRepository {
       async createGroup() {
         return {
-          group_id: 2,
-          group_uuid: '123e4567-e89b-12d3-a456-426614174000',
-          group_name: 'Test Group 2',
+          group_uuid: 'test-group-uuid-1',
+          group_name: 'Test Group 1',
         }
       }
       async fetchGroup(): Promise<RawGroup> {
@@ -156,9 +156,8 @@ describe('POST /api/groups', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       group: {
-        group_id: 2,
-        group_uuid: '123e4567-e89b-12d3-a456-426614174000',
-        group_name: 'Test Group 2',
+        group_uuid: 'test-group-uuid-1',
+        group_name: 'Test Group 1',
       },
     })
   })
@@ -180,8 +179,8 @@ describe('GET /api/groups/:groupUuid/members', () => {
       async fetchGroupMembers() {
         return [
           {
-            member_id: 1,
-            member_name: 'Test User',
+            member_uuid: 'test-member-uuid-1',
+            member_name: 'Test Member 1',
           },
         ]
       }
@@ -203,8 +202,8 @@ describe('GET /api/groups/:groupUuid/members', () => {
     expect(await res.json()).toEqual({
       members: [
         {
-          member_id: 1,
-          member_name: 'Test User',
+          member_uuid: 'test-member-uuid-1',
+          member_name: 'Test Member 1',
         },
       ],
     })
@@ -218,7 +217,7 @@ describe('POST /api/groups/:groupUuid/members', () => {
 
   test('should return status 400 if name is not set', async () => {
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      '/api/groups/test-group-uuid-1/members',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -231,7 +230,7 @@ describe('POST /api/groups/:groupUuid/members', () => {
 
   test('should return status 400 if name is empty', async () => {
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      '/api/groups/test-group-uuid-1/members',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -244,7 +243,7 @@ describe('POST /api/groups/:groupUuid/members', () => {
 
   test('should return status 400 if name is too long', async () => {
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      '/api/groups/test-group-uuid-1/members',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -262,8 +261,8 @@ describe('POST /api/groups/:groupUuid/members', () => {
       }
       async addGroupMember() {
         return {
-          member_id: 1,
-          member_name: 'Test User',
+          member_uuid: 'test-member-uuid-3',
+          member_name: 'Test Member 3',
         }
       }
 
@@ -278,19 +277,19 @@ describe('POST /api/groups/:groupUuid/members', () => {
     )
 
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
+      '/api/groups/test-group-uuid-1/members',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Test User' }),
+        body: JSON.stringify({ name: 'Test Member 3' }),
       },
       MOCK_ENV
     )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
       member: {
-        member_id: 1,
-        member_name: 'Test User',
+        member_uuid: 'test-member-uuid-3',
+        member_name: 'Test Member 3',
       },
     })
   })
@@ -299,18 +298,6 @@ describe('POST /api/groups/:groupUuid/members', () => {
 describe('DELETE /api/groups/:groupUuid/members/:memberId', () => {
   afterEach(() => {
     diContainer.clearOverrides()
-  })
-
-  test('should return status 400 if memberId is not a number', async () => {
-    const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members/abc',
-      {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      },
-      MOCK_ENV
-    )
-    expect(res.status).toBe(400)
   })
 
   test('should return status 200', async () => {
@@ -332,7 +319,7 @@ describe('DELETE /api/groups/:groupUuid/members/:memberId', () => {
     )
 
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/members/1',
+      '/api/groups/test-group-uuid-1/members/1',
       {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -350,6 +337,15 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
 
   test('should return status 200', async () => {
     class MockGroupExpensesRepository implements IGroupExpenseRepository {
+      addExpense(param: {
+        groupUuid: string
+        amount: number
+        description: string
+        paidByMemberId: number
+        participantMemberIds: number[]
+      }): Promise<RawExpense> {
+        throw new Error('Method not implemented.')
+      }
       async fetchGroupExpenses() {
         return [
           {
@@ -357,20 +353,20 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
             amount: 100,
             description: 'Test Expense',
             created_at: '2021-01-01T00:00:00Z',
-            paid_by_member_id: 1,
-            paid_by_member_name: 'Test User 1',
-            participant_member_id: 1,
-            participant_member_name: 'Test User 1',
+            paid_by_member_uuid: 'test-member-uuid-1',
+            paid_by_member_name: 'Test Member 1',
+            participant_member_uuid: 'test-member-uuid-1',
+            participant_member_name: 'Test Member 1',
           },
           {
             expense_id: 1,
             amount: 100,
             description: 'Test Expense',
             created_at: '2021-01-01T00:00:00Z',
-            paid_by_member_id: 2,
-            paid_by_member_name: 'Test User 1',
-            participant_member_id: 2,
-            participant_member_name: 'Test User 2',
+            paid_by_member_uuid: 'test-member-uuid-1',
+            paid_by_member_name: 'Test Member 1',
+            participant_member_uuid: 'test-member-uuid-2',
+            participant_member_name: 'Test Member 2',
           },
         ]
       }
@@ -382,7 +378,7 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
     )
 
     const res = await app.request(
-      '/api/groups/123e4567-e89b-12d3-a456-426614174000/expenses',
+      '/api/groups/test-group-uuid-1/expenses',
       {
         headers: { 'Content-Type': 'application/json' },
       },
@@ -398,17 +394,17 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
           description: 'Test Expense',
           created_at: '2021-01-01T00:00:00Z',
           paid_by_member: {
-            member_id: 1,
-            member_name: 'Test User 1',
+            member_uuid: 'test-member-uuid-1',
+            member_name: 'Test Member 1',
           },
           participant_members: [
             {
-              member_id: 1,
-              member_name: 'Test User 1',
+              member_uuid: 'test-member-uuid-1',
+              member_name: 'Test Member 1',
             },
             {
-              member_id: 2,
-              member_name: 'Test User 2',
+              member_uuid: 'test-member-uuid-2',
+              member_name: 'Test Member 2',
             },
           ],
         },
