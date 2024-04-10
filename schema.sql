@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS Groups (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create group members table
+-- Create members table
 CREATE TABLE IF NOT EXISTS Members (
   member_id INTEGER PRIMARY KEY,
   member_uuid TEXT UNIQUE,
