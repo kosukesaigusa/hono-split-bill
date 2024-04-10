@@ -4,10 +4,10 @@ import { prettyJSON } from 'hono/pretty-json'
 import { z } from 'zod'
 
 import { diContainer } from './di/di-config'
+import { ExpenseRepository } from './models/repositories/expense'
 import { GroupRepository } from './models/repositories/group'
-import { GroupExpenseRepository } from './models/repositories/group-expense'
-import { GroupMemberRepository } from './models/repositories/group-member'
-import { AddExpenseUseCase } from './models/use-cases/add-expense'
+import { MemberRepository } from './models/repositories/member'
+import { AddExpenseToGroupUseCase } from './models/use-cases/add-expense-to-group'
 import { AddMemberToGroupUseCase } from './models/use-cases/add-member-to-group'
 import { CreateGroupUseCase } from './models/use-cases/create-group'
 import { FetchGroupUseCase } from './models/use-cases/fetch-group'
@@ -23,19 +23,19 @@ app.use('*', (c, next) => {
   const db = c.env.DB
   diContainer.registerInstance('db', db)
 
-  diContainer.register('GroupExpenseRepository', GroupExpenseRepository, db)
-  diContainer.register('GroupMemberRepository', GroupMemberRepository, db)
+  diContainer.register('ExpenseRepository', ExpenseRepository, db)
   diContainer.register('GroupRepository', GroupRepository, db)
+  diContainer.register('MemberRepository', MemberRepository, db)
 
   diContainer.register(
-    'AddExpenseUseCase',
-    AddExpenseUseCase,
-    diContainer.get('GroupExpenseRepository')
+    'AddExpenseToGroupUseCase',
+    AddExpenseToGroupUseCase,
+    diContainer.get('ExpenseRepository')
   )
   diContainer.register(
     'AddMemberToGroupUseCase',
     AddMemberToGroupUseCase,
-    diContainer.get('GroupMemberRepository')
+    diContainer.get('MemberRepository')
   )
   diContainer.register(
     'CreateGroupUseCase',
@@ -45,12 +45,12 @@ app.use('*', (c, next) => {
   diContainer.register(
     'FetchGroupExpensesUseCase',
     FetchGroupExpensesUseCase,
-    diContainer.get('GroupExpenseRepository')
+    diContainer.get('ExpenseRepository')
   )
   diContainer.register(
     'FetchGroupMembersUseCase',
     FetchGroupMembersUseCase,
-    diContainer.get('GroupMemberRepository')
+    diContainer.get('MemberRepository')
   )
   diContainer.register(
     'FetchGroupUseCase',
@@ -60,7 +60,7 @@ app.use('*', (c, next) => {
   diContainer.register(
     'RemoveMemberFromGroupUseCase',
     RemoveMemberFromGroupUseCase,
-    diContainer.get('GroupMemberRepository')
+    diContainer.get('MemberRepository')
   )
 
   return next()
@@ -111,8 +111,8 @@ app.get(
     const limit = perPage ?? 10
     const offset = (page ?? 1 - 1) * limit
 
-    const fetchGroupMembersUseCase = diContainer.get('FetchGroupMembersUseCase')
-    const members = await fetchGroupMembersUseCase.invoke({
+    const fetchMembersUseCase = diContainer.get('FetchGroupMembersUseCase')
+    const members = await fetchMembersUseCase.invoke({
       groupUuid,
       limit,
       offset,
@@ -202,10 +202,8 @@ app.get(
     const limit = perPage ?? 10
     const offset = (page ?? 1 - 1) * limit
 
-    const fetchGroupExpensesUseCase = diContainer.get(
-      'FetchGroupExpensesUseCase'
-    )
-    const expenses = await fetchGroupExpensesUseCase.invoke({
+    const fetchExpensesUseCase = diContainer.get('FetchGroupExpensesUseCase')
+    const expenses = await fetchExpensesUseCase.invoke({
       groupUuid,
       limit,
       offset,
@@ -239,8 +237,8 @@ app.post(
     const { paidByMemberUuid, participantMemberUuids, amount, description } =
       c.req.valid('json')
 
-    const addExpenseUseCase = diContainer.get('AddExpenseUseCase')
-    const { expense, error } = await addExpenseUseCase.invoke({
+    const addExpenseToGroupUseCase = diContainer.get('AddExpenseToGroupUseCase')
+    const { expense, error } = await addExpenseToGroupUseCase.invoke({
       groupUuid,
       paidByMemberUuid: paidByMemberUuid,
       participantMemberUuids: participantMemberUuids,

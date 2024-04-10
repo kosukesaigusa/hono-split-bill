@@ -1,14 +1,11 @@
 import app from '../src'
 import { diContainer } from '../src/di/di-config'
-import { IGroupRepository, RawGroup } from '../src/models/repositories/group'
 import {
-  IGroupExpenseRepository,
+  IExpenseRepository,
   RawExpense,
-} from '../src/models/repositories/group-expense'
-import {
-  IGroupMemberRepository,
-  RawMember,
-} from '../src/models/repositories/group-member'
+} from '../src/models/repositories/expense'
+import { IGroupRepository, RawGroup } from '../src/models/repositories/group'
+import { IMemberRepository, RawMember } from '../src/models/repositories/member'
 
 const MOCK_ENV = {
   DB: {
@@ -169,14 +166,14 @@ describe('GET /api/groups/:groupUuid/members', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupMembersRepository implements IGroupMemberRepository {
-      deleteGroupMember(): Promise<void> {
+    class MockMembersRepository implements IMemberRepository {
+      deleteMember(): Promise<void> {
         throw new Error('Method not implemented.')
       }
-      addGroupMember(): Promise<RawMember> {
+      addMember(): Promise<RawMember> {
         throw new Error('Method not implemented.')
       }
-      async fetchGroupMembers() {
+      async fetchMembers() {
         return [
           {
             memberUuid: 'test-member-uuid-1',
@@ -186,10 +183,7 @@ describe('GET /api/groups/:groupUuid/members', () => {
       }
     }
 
-    diContainer.override(
-      'GroupMemberRepository',
-      new MockGroupMembersRepository()
-    )
+    diContainer.override('MemberRepository', new MockMembersRepository())
 
     const res = await app.request(
       '/api/groups/123e4567-e89b-12d3-a456-426614174000/members',
@@ -255,26 +249,23 @@ describe('POST /api/groups/:groupUuid/members', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupMembersRepository implements IGroupMemberRepository {
-      deleteGroupMember(): Promise<void> {
+    class MockMembersRepository implements IMemberRepository {
+      deleteMember(): Promise<void> {
         throw new Error('Method not implemented.')
       }
-      async addGroupMember() {
+      async addMember() {
         return {
           memberUuid: 'test-member-uuid-3',
           memberName: 'Test Member 3',
         }
       }
 
-      async fetchGroupMembers(): Promise<RawMember[]> {
+      async fetchMembers(): Promise<RawMember[]> {
         throw new Error('Method not implemented.')
       }
     }
 
-    diContainer.override(
-      'GroupMemberRepository',
-      new MockGroupMembersRepository()
-    )
+    diContainer.override('MemberRepository', new MockMembersRepository())
 
     const res = await app.request(
       '/api/groups/test-group-uuid-1/members',
@@ -301,22 +292,19 @@ describe('DELETE /api/groups/:groupUuid/members/:memberId', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupMembersRepository implements IGroupMemberRepository {
-      async deleteGroupMember() {
+    class MockMembersRepository implements IMemberRepository {
+      async deleteMember() {
         return
       }
-      addGroupMember(): Promise<RawMember> {
+      addMember(): Promise<RawMember> {
         throw new Error('Method not implemented.')
       }
-      fetchGroupMembers(): Promise<RawMember[]> {
+      fetchMembers(): Promise<RawMember[]> {
         throw new Error('Method not implemented.')
       }
     }
 
-    diContainer.override(
-      'GroupMemberRepository',
-      new MockGroupMembersRepository()
-    )
+    diContainer.override('MemberRepository', new MockMembersRepository())
 
     const res = await app.request(
       '/api/groups/test-group-uuid-1/members/1',
@@ -336,8 +324,8 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupExpensesRepository implements IGroupExpenseRepository {
-      async fetchGroupExpenses() {
+    class MockExpensesRepository implements IExpenseRepository {
+      async fetchExpenses() {
         return [
           {
             expenseUuid: 'test-expense-uuid-1',
@@ -362,15 +350,12 @@ describe('GET /api/groups/:groupUuid/expenses', () => {
         ]
       }
 
-      addGroupExpense(): Promise<RawExpense> {
+      addExpenseToGroup(): Promise<RawExpense> {
         throw new Error('Method not implemented.')
       }
     }
 
-    diContainer.override(
-      'GroupExpenseRepository',
-      new MockGroupExpensesRepository()
-    )
+    diContainer.override('ExpenseRepository', new MockExpensesRepository())
 
     const res = await app.request(
       '/api/groups/test-group-uuid-1/expenses',
@@ -484,20 +469,17 @@ describe('POST /api/groups/:groupUuid/expenses', () => {
   })
 
   test('should return status 400 if participantMemberUuids is equal to [paidByMemberUuid]', async () => {
-    class MockGroupExpensesRepository implements IGroupExpenseRepository {
-      async addGroupExpense(): Promise<RawExpense> {
+    class MockExpensesRepository implements IExpenseRepository {
+      async addExpenseToGroup(): Promise<RawExpense> {
         throw new Error('Method not implemented.')
       }
 
-      fetchGroupExpenses(): Promise<RawExpense[]> {
+      fetchExpenses(): Promise<RawExpense[]> {
         throw new Error('Method not implemented.')
       }
     }
 
-    diContainer.override(
-      'GroupExpenseRepository',
-      new MockGroupExpensesRepository()
-    )
+    diContainer.override('ExpenseRepository', new MockExpensesRepository())
 
     const res = await app.request(
       '/api/groups/test-group-uuid-1/expenses',
@@ -627,8 +609,8 @@ describe('POST /api/groups/:groupUuid/expenses', () => {
   })
 
   test('should return status 200', async () => {
-    class MockGroupExpensesRepository implements IGroupExpenseRepository {
-      async addGroupExpense() {
+    class MockExpensesRepository implements IExpenseRepository {
+      async addExpenseToGroup() {
         return {
           expenseUuid: 'test-expense-uuid-1',
           amount: 100,
@@ -641,15 +623,12 @@ describe('POST /api/groups/:groupUuid/expenses', () => {
         }
       }
 
-      fetchGroupExpenses(): Promise<RawExpense[]> {
+      fetchExpenses(): Promise<RawExpense[]> {
         throw new Error('Method not implemented.')
       }
     }
 
-    diContainer.override(
-      'GroupExpenseRepository',
-      new MockGroupExpensesRepository()
-    )
+    diContainer.override('ExpenseRepository', new MockExpensesRepository())
 
     const res = await app.request(
       '/api/groups/test-group-uuid-1/expenses',

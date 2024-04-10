@@ -1,4 +1,4 @@
-import { IGroupMemberRepository } from '../repositories/group-member'
+import { IMemberRepository } from '../repositories/member'
 
 export interface IRemoveMemberFromGroupUseCase {
   invoke(param: { memberUuid: string }): Promise<void>
@@ -7,9 +7,9 @@ export interface IRemoveMemberFromGroupUseCase {
 export class RemoveMemberFromGroupUseCase
   implements IRemoveMemberFromGroupUseCase
 {
-  constructor(private readonly groupMemberRepository: IGroupMemberRepository) {}
+  constructor(private readonly memberRepository: IMemberRepository) {}
 
   async invoke(param: { memberUuid: string }): Promise<void> {
-    return this.groupMemberRepository.deleteGroupMember(param)
+    return this.memberRepository.deleteMember(param)
   }
 }

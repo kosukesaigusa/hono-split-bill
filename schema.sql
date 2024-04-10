@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS ExpenseParticipants;
 
 DROP TABLE IF EXISTS Expenses;
 
-DROP TABLE IF EXISTS GroupMembers;
+DROP TABLE IF EXISTS Members;
 
 DROP TABLE IF EXISTS Groups;
 
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Groups (
 );
 
 -- Create group members table
-CREATE TABLE IF NOT EXISTS GroupMembers (
+CREATE TABLE IF NOT EXISTS Members (
   member_id INTEGER PRIMARY KEY,
   member_uuid TEXT UNIQUE,
   group_id INTEGER,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS Expenses (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (group_id) REFERENCES Groups(group_id),
-  FOREIGN KEY (paid_by_member_id) REFERENCES GroupMembers(member_id)
+  FOREIGN KEY (paid_by_member_id) REFERENCES Members(member_id)
 );
 
 -- Create expense participants table
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS ExpenseParticipants (
   expense_uuid TEXT,
   member_uuid TEXT,
   FOREIGN KEY (expense_uuid) REFERENCES Expenses(expense_uuid),
-  FOREIGN KEY (member_uuid) REFERENCES GroupMembers(member_uuid),
+  FOREIGN KEY (member_uuid) REFERENCES Members(member_uuid),
   UNIQUE (expense_uuid, member_uuid)
 );
 
@@ -55,9 +55,9 @@ INSERT INTO
 VALUES
   ('123e4567-e89b-12d3-a456-426614174000', '旅行');
 
--- Insert initial GroupMembers data
+-- Insert initial Members data
 INSERT INTO
-  GroupMembers (member_uuid, group_id, member_name)
+  Members (member_uuid, group_id, member_name)
 VALUES
   ('550e8400-e29b-41d4-a716-446655440000', 1, '太郎'),
   ('6f9619ff-8b86-d011-b42d-00cf4fc964ff', 1, '花子'),

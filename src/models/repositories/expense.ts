@@ -17,14 +17,14 @@ export type RawCreatedExpense = {
   paidByMemberUuid: string
 }
 
-export interface IGroupExpenseRepository {
-  fetchGroupExpenses(param: {
+export interface IExpenseRepository {
+  fetchExpenses(param: {
     groupUuid: string
     limit: number
     offset: number
   }): Promise<RawExpense[]>
 
-  addGroupExpense(param: {
+  addExpenseToGroup(param: {
     expenseUuid: string
     groupUuid: string
     paidByMemberUuid: string
@@ -34,10 +34,10 @@ export interface IGroupExpenseRepository {
   }): Promise<RawCreatedExpense>
 }
 
-export class GroupExpenseRepository implements IGroupExpenseRepository {
+export class ExpenseRepository implements IExpenseRepository {
   constructor(private readonly db: D1Database) {}
 
-  async fetchGroupExpenses(param: {
+  async fetchExpenses(param: {
     groupUuid: string
     limit: number
     offset: number
@@ -52,15 +52,15 @@ SELECT
   e.amount,
   e.description,
   e.created_at,
-  gm.member_uuid AS paid_by_member_uuid,
-  gm.member_name AS paid_by_member_name,
+  m.member_uuid AS paid_by_member_uuid,
+  m.member_name AS paid_by_member_name,
   ep.member_uuid AS participant_member_uuid,
   gpm.member_name AS participant_member_name
 FROM Expenses AS e
   JOIN Groups AS g ON e.group_id = g.group_id
-  JOIN GroupMembers AS gm ON e.paid_by_member_uuid = gm.member_uuid
+  JOIN Members AS m ON e.paid_by_member_uuid = m.member_uuid
   LEFT JOIN ExpenseParticipants AS ep ON e.expense_uuid = ep.expense_uuid
-  LEFT JOIN GroupMembers AS gpm ON ep.member_uuid = gpm.member_uuid
+  LEFT JOIN Members AS gpm ON ep.member_uuid = gpm.member_uuid
 WHERE g.group_uuid = ?
 ORDER BY e.created_at DESC, ep.member_uuid
 LIMIT ? OFFSET ?;
@@ -83,7 +83,7 @@ LIMIT ? OFFSET ?;
     })
   }
 
-  async addGroupExpense(param: {
+  async addExpenseToGroup(param: {
     expenseUuid: string
     groupUuid: string
     paidByMemberUuid: string

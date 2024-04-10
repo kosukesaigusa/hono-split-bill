@@ -1,18 +1,18 @@
 import { Member } from '../../schema'
 import { uuid } from '../../utils/uuid'
-import { IGroupMemberRepository } from '../repositories/group-member'
+import { IMemberRepository } from '../repositories/member'
 
 export interface IAddMemberToGroupUseCase {
   invoke(param: { groupUuid: string; name: string }): Promise<Member>
 }
 
 export class AddMemberToGroupUseCase implements IAddMemberToGroupUseCase {
-  constructor(private readonly groupMemberRepository: IGroupMemberRepository) {}
+  constructor(private readonly memberRepository: IMemberRepository) {}
 
   async invoke(param: { groupUuid: string; name: string }): Promise<Member> {
     const { groupUuid, name } = param
     const memberUuid = uuid()
-    const rawMember = await this.groupMemberRepository.addGroupMember({
+    const rawMember = await this.memberRepository.addMember({
       groupUuid,
       memberUuid,
       name,

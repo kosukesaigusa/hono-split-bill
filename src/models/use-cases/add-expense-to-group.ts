@@ -1,34 +1,32 @@
 import { CreatedExpense } from '../../schema'
 import { areArraysEqual } from '../../utils/array'
 import { uuid } from '../../utils/uuid'
-import { IGroupExpenseRepository } from '../repositories/group-expense'
+import { IExpenseRepository } from '../repositories/expense'
 
-type AddExpenseUseCaseResult =
+type AddExpenseToGroupUseCaseResult =
   | {
       expense: CreatedExpense
       error?: undefined
     }
   | {
       expense?: undefined
-      error: AddExpenseUseCaseError
+      error: AddExpenseToGroupUseCaseError
     }
 
-type AddExpenseUseCaseError = { message: string }
+type AddExpenseToGroupUseCaseError = { message: string }
 
-export interface IAddExpenseUseCase {
+export interface IAddExpenseToGroupUseCase {
   invoke(param: {
     groupUuid: string
     paidByMemberUuid: string
     description: string
     amount: number
     participantMemberUuids: string[]
-  }): Promise<AddExpenseUseCaseResult>
+  }): Promise<AddExpenseToGroupUseCaseResult>
 }
 
-export class AddExpenseUseCase implements IAddExpenseUseCase {
-  constructor(
-    private readonly groupMemberRepository: IGroupExpenseRepository
-  ) {}
+export class AddExpenseToGroupUseCase implements IAddExpenseToGroupUseCase {
+  constructor(private readonly memberRepository: IExpenseRepository) {}
 
   async invoke(param: {
     groupUuid: string
@@ -36,7 +34,7 @@ export class AddExpenseUseCase implements IAddExpenseUseCase {
     description: string
     amount: number
     participantMemberUuids: string[]
-  }): Promise<AddExpenseUseCaseResult> {
+  }): Promise<AddExpenseToGroupUseCaseResult> {
     const expenseUuid = uuid()
     const {
       groupUuid,
@@ -55,7 +53,7 @@ export class AddExpenseUseCase implements IAddExpenseUseCase {
       }
     }
 
-    const rawExpense = await this.groupMemberRepository.addGroupExpense({
+    const rawExpense = await this.memberRepository.addExpenseToGroup({
       expenseUuid,
       groupUuid,
       paidByMemberUuid,

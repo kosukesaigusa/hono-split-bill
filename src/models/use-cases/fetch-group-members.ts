@@ -1,5 +1,5 @@
 import { Member } from '../../schema'
-import { IGroupMemberRepository } from '../repositories/group-member'
+import { IMemberRepository } from '../repositories/member'
 
 export interface IFetchGroupMembersUseCase {
   invoke(param: {
@@ -10,14 +10,14 @@ export interface IFetchGroupMembersUseCase {
 }
 
 export class FetchGroupMembersUseCase implements IFetchGroupMembersUseCase {
-  constructor(private readonly groupMemberRepository: IGroupMemberRepository) {}
+  constructor(private readonly memberRepository: IMemberRepository) {}
 
   async invoke(param: {
     groupUuid: string
     limit: number
     offset: number
   }): Promise<Member[] | undefined> {
-    const rawMembers = await this.groupMemberRepository.fetchGroupMembers(param)
+    const rawMembers = await this.memberRepository.fetchMembers(param)
 
     return rawMembers.map((r) => {
       return {
