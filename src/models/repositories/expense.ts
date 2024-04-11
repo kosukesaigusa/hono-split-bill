@@ -1,3 +1,5 @@
+import { IDbClient } from '../db-client'
+
 export type RawExpense = {
   expenseUuid: string
   amount: number
@@ -35,7 +37,7 @@ export interface IExpenseRepository {
 }
 
 export class ExpenseRepository implements IExpenseRepository {
-  constructor(private readonly db: D1Database) {}
+  constructor(private readonly dbClient: IDbClient) {}
 
   async fetchExpenses(param: {
     groupUuid: string
@@ -44,7 +46,7 @@ export class ExpenseRepository implements IExpenseRepository {
   }): Promise<RawExpense[]> {
     const { groupUuid, limit, offset } = param
 
-    const { results } = await this.db
+    const { results } = await this.dbClient
       .prepare(
         `
 SELECT
@@ -52,18 +54,21 @@ SELECT
   e.amount,
   e.description,
   e.created_at,
-  m.member_uuid AS paid_by_member_uuid,
-  m.member_name AS paid_by_member_name,
-  ep.member_uuid AS participant_member_uuid,
-  gpm.member_name AS participant_member_name
-FROM Expenses AS e
-  JOIN Groups AS g ON e.group_id = g.group_id
-  JOIN Members AS m ON e.paid_by_member_uuid = m.member_uuid
-  LEFT JOIN ExpenseParticipants AS ep ON e.expense_uuid = ep.expense_uuid
-  LEFT JOIN Members AS gpm ON ep.member_uuid = gpm.member_uuid
-WHERE g.group_uuid = ?
-ORDER BY e.created_at DESC, ep.member_uuid
-LIMIT ? OFFSET ?;
+  pm.member_uuid AS paid_by_member_uuid,
+  pm.member_name AS paid_by_member_name,
+  epm.member_uuid AS participant_member_uuid,
+  epm.member_name AS participant_member_name
+FROM (
+  SELECT *
+  FROM Expenses
+  WHERE group_uuid = ?
+  ORDER BY created_at DESC
+  LIMIT ? OFFSET ?
+) AS e
+JOIN Members AS pm ON e.paid_by_member_uuid = pm.member_uuid
+LEFT JOIN ExpenseParticipants AS ep ON e.expense_uuid = ep.expense_uuid
+LEFT JOIN Members AS epm ON ep.member_uuid = epm.member_uuid
+ORDER BY e.created_at DESC, e.expense_uuid, ep.member_uuid;
 `
       )
       .bind(groupUuid, limit, offset)
@@ -101,16 +106,16 @@ LIMIT ? OFFSET ?;
     } = param
 
     const statements = [
-      this.db
+      this.dbClient
         .prepare(
           `
-INSERT INTO Expenses (expense_uuid, group_id, paid_by_member_uuid, description, amount)
-VALUES (?, (SELECT group_id FROM Groups WHERE group_uuid = ?), ?, ?, ?);
+INSERT INTO Expenses (expense_uuid, group_uuid, paid_by_member_uuid, description, amount)
+VALUES (?, ?, ?, ?, ?);
 `
         )
         .bind(expenseUuid, groupUuid, paidByMemberUuid, description, amount),
       ...participantMemberUuids.map((participantMemberUuid) =>
-        this.db
+        this.dbClient
           .prepare(
             `INSERT INTO ExpenseParticipants (expense_uuid, member_uuid) VALUES (?, ?);`
           )
@@ -118,12 +123,10 @@ VALUES (?, (SELECT group_id FROM Groups WHERE group_uuid = ?), ?, ?, ?);
       ),
     ]
 
-    const results = await this.db.batch(statements)
+    await this.dbClient.batch(statements.map((s) => s.getStatement()))
 
-    if (results.some((r) => r.error)) throw new Error('Failed to add expense')
-
-    const createdExpense = await this.db
-      .prepare(`'SELECT * FROM Expenses WHERE expense_uuid = ?;`)
+    const createdExpense = await this.dbClient
+      .prepare(`SELECT * FROM Expenses WHERE expense_uuid = ?;`)
       .bind(expenseUuid)
       .first()
 

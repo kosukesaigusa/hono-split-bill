@@ -1,3 +1,5 @@
+import { IDbClient } from '../db-client'
+
 export type RawGroup = {
   groupUuid: string
   groupName: string
@@ -10,10 +12,10 @@ export interface IGroupRepository {
 }
 
 export class GroupRepository implements IGroupRepository {
-  constructor(private readonly db: D1Database) {}
+  constructor(private readonly dbClient: IDbClient) {}
 
   async fetchGroup(groupUuid: string): Promise<RawGroup | undefined> {
-    const result = await this.db
+    const result = await this.dbClient
       .prepare('SELECT * FROM Groups WHERE group_uuid = ?')
       .bind(groupUuid)
       .first()
@@ -32,16 +34,14 @@ export class GroupRepository implements IGroupRepository {
   }): Promise<RawGroup> {
     const { groupUuid, name } = param
 
-    const result = await this.db
+    await this.dbClient
       .prepare('INSERT INTO Groups (group_uuid, group_name) VALUES (?, ?)')
       .bind(groupUuid, name)
       .run()
 
-    if (!result.success) throw new Error('Failed to create group')
-
-    const createdGroup = await this.db
-      .prepare('SELECT * FROM Groups WHERE group_id = ?')
-      .bind(result.meta.last_row_id)
+    const createdGroup = await this.dbClient
+      .prepare('SELECT * FROM Groups WHERE group_uuid = ?')
+      .bind(groupUuid)
       .first()
 
     if (!createdGroup) throw new Error('Failed to fetch created group')

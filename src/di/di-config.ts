@@ -1,3 +1,4 @@
+import { IDbClient } from '../models/db-client'
 import { IExpenseRepository } from '../models/repositories/expense'
 import { IGroupRepository } from '../models/repositories/group'
 import { IMemberRepository } from '../models/repositories/member'
@@ -12,7 +13,7 @@ import { DIContainer } from './di-container'
 
 type DependencyTypes = {
   // Database client
-  db: D1Database
+  dbClient: IDbClient
 
   // Repositories
   ExpenseRepository: IExpenseRepository

@@ -4,6 +4,7 @@ import { prettyJSON } from 'hono/pretty-json'
 import { z } from 'zod'
 
 import { diContainer } from './di/di-config'
+import { D1DatabaseClient } from './models/db-client'
 import { ExpenseRepository } from './models/repositories/expense'
 import { GroupRepository } from './models/repositories/group'
 import { MemberRepository } from './models/repositories/member'
@@ -20,12 +21,12 @@ type Bindings = { DB: D1Database }
 const app = new Hono<{ Bindings: Bindings }>()
 
 app.use('*', (c, next) => {
-  const db = c.env.DB
-  diContainer.registerInstance('db', db)
+  const dbClient = new D1DatabaseClient(c.env.DB)
+  diContainer.registerInstance('dbClient', dbClient)
 
-  diContainer.register('ExpenseRepository', ExpenseRepository, db)
-  diContainer.register('GroupRepository', GroupRepository, db)
-  diContainer.register('MemberRepository', MemberRepository, db)
+  diContainer.register('ExpenseRepository', ExpenseRepository, dbClient)
+  diContainer.register('GroupRepository', GroupRepository, dbClient)
+  diContainer.register('MemberRepository', MemberRepository, dbClient)
 
   diContainer.register(
     'AddExpenseToGroupUseCase',
