@@ -1,14 +1,32 @@
 type DbClientErrorType = 'GENERIC' | 'UNIQUE_CONSTRAINT' | 'UNKNOWN'
 
+interface ErrorMapping {
+  type: DbClientErrorType
+  messagePattern: RegExp
+}
+
+const errorMappings: ErrorMapping[] = [
+  {
+    type: 'UNIQUE_CONSTRAINT',
+    messagePattern: /^D1_ERROR: UNIQUE constraint failed:/,
+  },
+  {
+    type: 'GENERIC',
+    messagePattern: /.*/,
+  },
+]
+
+const determineErrorType = (message: string): DbClientErrorType => {
+  const mapping = errorMappings.find((m) => m.messagePattern.test(message))
+  return mapping ? mapping.type : 'UNKNOWN'
+}
+
 const handleError = (e: unknown): never => {
   if (e instanceof Error) {
     const message = e.message
+    const errorType = determineErrorType(message)
     console.error({ message })
-    if (message.startsWith('D1_ERROR: UNIQUE constraint failed:')) {
-      throw new DbClientError(message, 'UNIQUE_CONSTRAINT')
-    } else {
-      throw new DbClientError(message)
-    }
+    throw new DbClientError(message, errorType)
   } else {
     console.error(`An unknown error occurred: ${e}`)
     throw new DbClientError('An unknown error occurred', 'UNKNOWN')
