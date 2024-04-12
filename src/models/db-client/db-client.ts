@@ -1,3 +1,32 @@
+type DbClientErrorType = 'GENERIC' | 'UNIQUE_CONSTRAINT' | 'UNKNOWN'
+
+const handleError = (e: unknown): never => {
+  if (e instanceof Error) {
+    const message = e.message
+    console.error({ message })
+    if (message.startsWith('D1_ERROR: UNIQUE constraint failed:')) {
+      throw new DbClientError(message, 'UNIQUE_CONSTRAINT')
+    } else {
+      throw new DbClientError(message)
+    }
+  } else {
+    console.error(`An unknown error occurred: ${e}`)
+    throw new DbClientError('An unknown error occurred', 'UNKNOWN')
+  }
+}
+
+export class DbClientError extends Error {
+  public errorType: DbClientErrorType
+
+  public constructor(
+    message?: string,
+    errorType: DbClientErrorType = 'GENERIC'
+  ) {
+    super(message)
+    this.errorType = errorType
+  }
+}
+
 export interface IDbClient {
   exec(query: string): Promise<D1ExecResult>
   batch(statements: D1PreparedStatement[]): Promise<D1Result<unknown>[]>
@@ -11,27 +40,24 @@ export class D1DatabaseClient implements IDbClient {
   async exec(query: string): Promise<D1ExecResult> {
     try {
       return await this.db.exec(query)
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 
   async batch(statements: D1PreparedStatement[]): Promise<D1Result<unknown>[]> {
     try {
       return await this.db.batch(statements)
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 
   async dump(): Promise<ArrayBuffer> {
     try {
       return await this.db.dump()
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 
@@ -39,9 +65,8 @@ export class D1DatabaseClient implements IDbClient {
     try {
       const statement = this.db.prepare(query)
       return new D1PreparedStatementWrapper(statement)
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 }
@@ -65,27 +90,24 @@ class D1PreparedStatementWrapper {
       } else {
         return await this.statement.first<T>()
       }
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 
   async run(): Promise<D1Response> {
     try {
       return await this.statement.run()
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 
   async all<T = Record<string, unknown>>(): Promise<D1Result<T>> {
     try {
       return await this.statement.all<T>()
-    } catch (e: any) {
-      console.error({ message: e.message })
-      throw e
+    } catch (e: unknown) {
+      throw handleError(e)
     }
   }
 

@@ -4,7 +4,7 @@ import { prettyJSON } from 'hono/pretty-json'
 import { z } from 'zod'
 
 import { diContainer } from './di/di-config'
-import { D1DatabaseClient } from './models/db-client'
+import { D1DatabaseClient } from './models/db-client/db-client'
 import { ExpenseRepository } from './models/repositories/expense'
 import { GroupRepository } from './models/repositories/group'
 import { MemberRepository } from './models/repositories/member'

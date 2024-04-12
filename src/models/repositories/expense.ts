@@ -1,4 +1,4 @@
-import { IDbClient } from '../db-client'
+import { IDbClient } from '../db-client/db-client'
 
 export type RawExpense = {
   expenseUuid: string

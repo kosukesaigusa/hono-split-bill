@@ -1,4 +1,4 @@
-import { IDbClient } from '../models/db-client'
+import { IDbClient } from '../models/db-client/db-client'
 import { IExpenseRepository } from '../models/repositories/expense'
 import { IGroupRepository } from '../models/repositories/group'
 import { IMemberRepository } from '../models/repositories/member'
