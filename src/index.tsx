@@ -141,9 +141,16 @@ app.post(
     const { groupUuid } = c.req.valid('param')
     const { name } = c.req.valid('json')
     const addMemberToGroupUseCase = diContainer.get('AddMemberToGroupUseCase')
-    const member = await addMemberToGroupUseCase.invoke({ groupUuid, name })
+    const { data, error } = await addMemberToGroupUseCase.invoke({
+      groupUuid,
+      name,
+    })
 
-    return c.json({ member })
+    if (error) {
+      return c.json({ message: error.message }, 400)
+    }
+
+    return c.json({ member: data })
   }
 )
 
